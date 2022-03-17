@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { VideoSearchStack } from '../lib/video-search-stack';
+import { VideoSearchStack } from '../stack/video-search-stack';
+import {KendraStack} from "../stack/kendra";
 
 const app = new cdk.App();
 new VideoSearchStack(app, 'VideoSearchStack', {
@@ -18,4 +19,10 @@ new VideoSearchStack(app, 'VideoSearchStack', {
   // env: { account: '123456789012', region: 'us-east-1' },
 
   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+});
+
+new KendraStack(app, 'VideoSearchKendraStack', {
+    env: {
+        region: 'ap-southeast-1'
+    }
 });

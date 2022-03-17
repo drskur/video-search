@@ -1,5 +1,5 @@
 {
-  "app": "npx ts-node --prefer-ts-exts bin/video-search.ts",
+  "app": "npx ts-node --prefer-ts-exts bin/foundation.ts",
   "watch": {
     "include": [
       "**"

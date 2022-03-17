@@ -2,7 +2,7 @@
   "name": "video-search",
   "version": "0.1.0",
   "bin": {
-    "video-search": "bin/video-search.js"
+    "foundation": "bin/foundation.js"
   },
   "scripts": {
     "build": "tsc",
@@ -11,17 +11,17 @@
     "cdk": "cdk"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.10",
+    "@types/jest": "^26.0.24",
     "@types/node": "10.17.27",
-    "jest": "^26.4.2",
-    "ts-jest": "^26.2.0",
     "aws-cdk": "2.16.0",
-    "ts-node": "^9.0.0",
+    "jest": "^26.6.3",
+    "ts-jest": "^26.5.6",
+    "ts-node": "^9.1.1",
     "typescript": "~3.9.7"
   },
   "dependencies": {
     "aws-cdk-lib": "2.16.0",
-    "constructs": "^10.0.0",
-    "source-map-support": "^0.5.16"
+    "constructs": "^10.0.90",
+    "source-map-support": "^0.5.21"
   }
 }
