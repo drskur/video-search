@@ -1,16 +1,22 @@
-import { Stack, StackProps } from 'aws-cdk-lib';
+import {aws_lambda, Stack, StackProps} from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-// import * as sqs from 'aws-cdk-stack/aws-sqs';
+import {Architecture, Runtime} from "aws-cdk-lib/aws-lambda";
 
 export class VideoSearchStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    // The code that defines your stack goes here
+    this.createLambdaFunction("KendraIndex")
 
-    // example resource
-    // const queue = new sqs.Queue(this, 'VideoSearchQueue', {
-    //   visibilityTimeout: cdk.Duration.seconds(300)
-    // });
+  }
+
+  private createLambdaFunction(baseName: string): aws_lambda.Function {
+    return new aws_lambda.Function(this, baseName, {
+      functionName: `${this.stackName}-${baseName}`,
+      architecture: Architecture.ARM_64,
+      runtime: Runtime.PROVIDED_AL2,
+      code: aws_lambda.Code.fromAsset('lambda/target/lambda/index/'),
+      handler: "bootstrap",
+    });
   }
 }

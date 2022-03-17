@@ -4,6 +4,7 @@ import {Effect, PolicyStatement, Role, ServicePrincipal} from "aws-cdk-lib/aws-i
 import {CfnIndex} from "aws-cdk-lib/aws-kendra";
 
 export class KendraStack extends Stack {
+
     constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id, props);
 
@@ -12,8 +13,13 @@ export class KendraStack extends Stack {
     }
 
     private createCfnIndex(id: string, role: Role): CfnIndex {
+        const indexName = process.env.VIDEO_INDEX_NAME;
+        if (!indexName) {
+            throw new Error("must be set VIDEO_INDEX_NAME");
+        }
+
         return  new CfnIndex(this, id, {
-            name: "VideoIndex",
+            name: indexName,
             edition: "DEVELOPER_EDITION",
             description: "video caption index",
             roleArn: role.roleArn,
