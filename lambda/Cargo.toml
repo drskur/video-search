@@ -7,9 +7,23 @@ edition = "2021"
 name = "index"
 path = "src/cmd/index.rs"
 
+[[bin]]
+name = "subtitle"
+path = "src/cmd/subtitle.rs"
+
+[lib]
+name = "lib"
+path = "src/lib.rs"
+
 [dependencies]
-anyhow = "1"
+aws-config = "0.8"
+aws-sdk-kendra = "0.8"
+aws-sdk-transcribe = "0.8"
+aws-sdk-translate = "0.8"
+dotenv = "0.15"
 lambda_runtime = "0.5"
 aws_lambda_events = "0.5"
 tokio = { version = "1", features = ["full"] }
 serde_json = "1"
+serde = "1"
+anyhow = "1"

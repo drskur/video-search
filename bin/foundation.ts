@@ -16,6 +16,6 @@ new VideoSearchStack(app, 'VideoSearchStack', {
 
 new KendraStack(app, 'VideoSearchKendraStack', {
     env: {
-        region: 'ap-southeast-1'
+        region: process.env.KENDRA_REGION
     }
 });
