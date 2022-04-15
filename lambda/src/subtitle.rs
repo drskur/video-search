@@ -105,6 +105,10 @@ impl Subtitle {
             }
         }
 
+        if item.start_time != f32::default() {
+            items.push(item.clone());
+        }
+
         Ok(Subtitle { items })
     }
 
@@ -134,18 +138,35 @@ impl Subtitle {
         for (i, item) in self.items.iter().enumerate() {
             w.write_all(format!("{}\n", i + 1).as_bytes()).await?;
             w.write_all(format!("{} --> {}\n",
-                                Self::time_format(item.start_time),
-                                Self::time_format(item.end_time)).as_bytes()).await?;
+                                Self::time_format(item.start_time, ","),
+                                Self::time_format(item.end_time, ",")).as_bytes()).await?;
             w.write_all(item.content.as_bytes()).await?;
             w.write_all(b"\n\n").await?;
         }
 
         w.flush().await?;
         Ok(())
-
     }
 
-    fn time_format(t: f32) -> String {
+    pub async fn save_as_vtt(&self, output_path: &str) -> Result<(), tokio::io::Error> {
+        let file = tokio::fs::File::create(output_path).await?;
+        let mut w = BufReader::new(file);
+
+        w.write_all(format!("WEBVTT\n\n").as_bytes()).await?;
+
+        for (_i, item) in self.items.iter().enumerate() {
+            w.write_all(format!("{} --> {}\n",
+                                Self::time_format(item.start_time, "."),
+                                Self::time_format(item.end_time, ".")).as_bytes()).await?;
+            w.write_all(item.content.as_bytes()).await?;
+            w.write_all(b"\n\n").await?;
+        }
+
+        w.flush().await?;
+        Ok(())
+    }
+
+    fn time_format(t: f32, d: &str) -> String {
         let mut t = t;
         let h = (t as i32) / 3600;
         t -= (h as f32) * 3600_f32;
@@ -155,6 +176,6 @@ impl Subtitle {
         t -= s as f32;
         let ms = (t  * 1000_f32) as i32;
 
-        format!("{:02}:{:02}:{:02},{}", h, m, s, ms)
+        format!("{:02}:{:02}:{:02}{}{:03}", h, m, s, d, ms)
     }
 }

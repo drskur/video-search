@@ -1,0 +1,569 @@
+WEBVTT
+
+00:00:01.240 --> 00:00:04.599
+Hello everyone , thank you for joining today.
+
+00:00:04.610 --> 00:00:10.500
+My name is Mirage and I am one of the cars driving engineer here in Singapore.
+
+00:00:10.510 --> 00:00:20.350
+I will , I will be presented today together with Greg , one of the protests that we have been working on in the last few months which is a food delivery solution for travel.
+
+00:00:20.350 --> 00:00:45.560
+Oka , so the agenda for today is the following one and we start by introducing uh customer , what was the problem statement that drive us through the prototype ? Have a very high level uh technical approach to the prototype and then break , break the presentation with the , with the demo and show you what we actually delivered to the customer.
+
+00:00:45.569 --> 00:01:03.060
+And then next part will be taken over by Greg and they will be speaking about challenges , solutions and lessons learned throughout the prototype , the impact that we had for the customer and also beyond the customers where we ? Re usability.
+
+00:01:05.139 --> 00:01:19.440
+So first of all , who doesn't know , travel Loca is one of the Indonesian unicorn is active in the asian region and also in NZ uh is said to be public probably throughout the end of the year.
+
+00:01:19.449 --> 00:01:38.160
+Uh it started as an online travel agency but today offer a wide range of services from legacy like fly hotel , train and travel packages but also other kind of solutions around vega renting food delivery more and more.
+
+00:01:38.639 --> 00:02:02.599
+Its target as a super app with more than 60 million download across uh the , the stores for this specific prototype , we got in touch with travel loca , its business unit as they wanted to revamp , their current offering by adding an internal drive leads to integrate with their existing external providers.
+
+00:02:02.610 --> 00:02:12.029
+So before the prototype most of the business around travel Luca , it was actually and uh exclusively by external providers.
+
+00:02:12.039 --> 00:02:18.559
+So any orders coming in the platform was just uploaded to a different delivery partner.
+
+00:02:18.639 --> 00:02:30.160
+With the prototype , we started to have a discussion on actually having uh an internal driver flees that will fulfill those orders and deliver to to end customers.
+
+00:02:31.740 --> 00:02:42.389
+The province statement that we we put together at the early stage of the prototype was really on uh having travel local.
+
+00:02:42.399 --> 00:03:03.660
+It's uh to provide an ability to search drivers and determining what drivers should be assigned uh order and that kind of uh you know , just really high level problem statement requires drivers to be tracked a scale and determine what drivers are actually available to fulfill those orders.
+
+00:03:04.240 --> 00:03:12.839
+Also to analyze driver behavior , historical data must be available for future use and tracking solutions derived from this.
+
+00:03:12.850 --> 00:03:47.460
+Uh it must be uh able to scale to meet the demand while staying cost effectively , cost effective and seemingly integrating with gentlemen , Travel local solution , which they were already building at the time at the same time to distribute order amongst drivers in the travel Loca , its food delivery network including third party provider required to considering input from many complex factors coming from multiple services while optimizing that for customer experience a cost across thousands of drivers in order simultaneously.
+
+00:03:47.839 --> 00:04:11.960
+So international , the customer wanted to have a really simple solution that will help to distribute order among the drivers , which abstract away this complex choreography at massive scale and which was easy , easy change and tune and modify from the customer to to just experiment and adjust that as they learn.
+
+00:04:13.539 --> 00:04:29.359
+So when we broke down this problem , we realized that there were a couple of uh pretty different , you know , uh problems attached to it , many problems , you know , but we could group them in a couple of uh phases and that's how we deliver the prototype as well.
+
+00:04:29.369 --> 00:04:35.130
+So we started by tackling the uh tracking drivers scale.
+
+00:04:35.140 --> 00:05:13.149
+So the first phase was just about that we spent about two weeks and we provide an ability to injury in just uh data location data coming from uh fleet of drivers and put that into a data store which was uh giving the chance to query those drivers by simple , you know , radius or complex uh polygons and also add additional future , like geo fencing , Patel and notify the customer or the restaurant and the driver is close to the target destination.
+
+00:05:13.160 --> 00:05:21.350
+While phase two , which was fairly more complex than phase one uh took a little bit more around 67 weeks.
+
+00:05:21.350 --> 00:06:11.739
+And uh that in that time we we actually mostly spent to uh try to abstract the uh provider , uh you know , some kind of uh I would say provided layer that we wanted to give to the customer to have a way to easily add or remove providers from the system at the same time , I have like an engine that will determine which providers should be used based on the incoming order and this engine will be , you know , providing business rules that can be adjusted , modified and extended by the customer uh while also building a dispatch change in that we'll use the internal driver fleet that was already tracked by phase one to actually uh fulfill orders to specific driver.
+
+00:06:11.750 --> 00:06:25.890
+And also this dispatch layer would uh would have multiple business rules to prioritize drivers based on distance drivers , score or the factor that drives the customer can add or remove to their business logic as they need.
+
+00:06:29.239 --> 00:06:34.769
+So , phase one as I mentioned was mostly around uh search.
+
+00:06:34.779 --> 00:07:01.910
+So provide a way to search driver for uh from , you know , you know , area by using radios using polygons , uh , geo fencing to determine if the driver has crossed uh certain uh you know , point in the map , we usually do that to notify the restaurant and the driver is closed or the customer that you know , the driver is about to deliver the parcel.
+
+00:07:01.920 --> 00:07:15.109
+Uh Same time we really pay a lot of attention on battery optimization as well , considering that this application will be used for drivers probably for 68 hours a day.
+
+00:07:15.119 --> 00:07:22.510
+So part of the design decision where we're considering this , factoring this factor as well On top of that.
+
+00:07:22.519 --> 00:07:46.279
+We also added routing in 80 a using a mapping solution to to tell along the driver will need to go from point to point uh and also have a way to code and uh defined area in the map uh to to provide multiple configuration um you know , attached to it from a high level point of view.
+
+00:07:46.290 --> 00:07:56.519
+Uh This is what we actually deliver in terms of uh technical uh officials to the customer um is mostly like microservices.
+
+00:07:56.529 --> 00:07:58.950
+Microservices based approach.
+
+00:07:58.959 --> 00:08:04.049
+We use the even sourcing uh as uh pattern for that.
+
+00:08:04.049 --> 00:08:21.109
+So we have in the global layer we have uh even have that we use uh for changing messages between services , but most of the deliverables will say are around uh providing uh the ability to search driver.
+
+00:08:21.119 --> 00:08:55.320
+So we have a simple uh simple location search layer which uses mostly radius to query drivers and uh within a radius why we have a more complex search capability as well that allow the customer to uh credit drivers by using a complex shapes such as the polygons and for that we use elasticsearch to actually test part of the premises that they were in the problem statement around the , you know , being able to scale this to meet the pigment.
+
+00:08:55.330 --> 00:09:02.739
+We actually build a simulator that will allow us to simulate behavior of thousands of drivers simultaneously.
+
+00:09:02.750 --> 00:09:17.140
+And uh you know , just just make sure that we will actually be able to to hit that um um requirement , we also enable the customer to you know , set the foundation for a data leak.
+
+00:09:17.150 --> 00:09:29.359
+So all the location data coming from the driver are ingested into an S three bucket that eventually will be used by the customer to head on machine learning or other analytics to it.
+
+00:09:29.369 --> 00:09:40.409
+Again , joe fencing as I mentioned as well , was part of the phase one uh and also notification was available as an extension to it.
+
+00:09:41.840 --> 00:09:44.469
+Phase two was around the dispatch changing only.
+
+00:09:44.479 --> 00:10:34.789
+Uh and as you can see here , I was just uh put in there but it was uh you know um taken as a as a way for the Phase one to actually think and design ahead for what we needed to do for Phase two where Phase two exam mentioned before is fairly more complex than the Phase one because it's not only providing uh actual tracking solution but it's more around dispatching those orders and use business rules to decide what provided to use , right ? So we have a multiple layer of choices in uh in the solution one the first layer is where um orders will go through and uh what we call a provided rule engine with this , we will decide which provided to use for the specific order.
+
+00:10:34.799 --> 00:10:41.270
+And again here there will be business rules apply to it and something that the customer can extend and modify as they go.
+
+00:10:41.280 --> 00:10:59.840
+Uh but something simple would be uh as simple as uh around 50% of the order to one provider or something like if the order is from a specific restaurant , uh deliver that to send that to a specific provider , like an external provider.
+
+00:10:59.849 --> 00:11:10.450
+So we have this sort of provide a protection layer that give the chance to enable disable uh removal provided as as you go or the distribution.
+
+00:11:10.460 --> 00:11:40.909
+This is more for the internal provider is where we actually are going to use the driver fleet that we are , we're tracking from phase one to actually believer orders and uh with that we had that joke lasting layer as well to to have an ability to split the incoming order by location so that the problem that we come out of it will be able to be solved in a very short amount of time.
+
+00:11:40.919 --> 00:11:45.369
+So we were looking at uh solving those assignments in a matter of seconds.
+
+00:11:45.380 --> 00:11:50.820
+So having a very large search space would be , you know , undermined disability.
+
+00:11:50.820 --> 00:11:59.500
+So we provided joe clustering to cluster together orders that are around a certain area with that routing as well.
+
+00:11:59.500 --> 00:12:14.770
+Was one part of the problem here from phase one where we were providing just the ability to Pirri we needed to have in face to do something that would actually , you know , be able to query those driver effectively.
+
+00:12:14.780 --> 00:12:39.359
+And one part of it is the ice Akron's uh that could be generated from uh from giving clusters so you could say , you know , from this point , give me a nice background that is five minutes away or 10 minutes away and with that I will quickly driver in the range and uh and provide that as an equal to dissolve er to uh to eventually assigned them to the orders.
+
+00:12:39.840 --> 00:12:51.890
+Demographic area are defined as well and those are mainly needed for uh having a configurable configuration rules that apply to only specific area of the city.
+
+00:12:51.900 --> 00:13:05.250
+So when I was talking about the provided rule engine here , there are business routes that are attached to it , but those business roots are actually coming from uh you know , um an area right ? So they will be defined and attached to an area.
+
+00:13:05.260 --> 00:13:20.510
+Uh And uh each area can have different business roots , it's the same as for the other distribution , there are different constraints that can be tuned based on the demographic areas as well or the right second management.
+
+00:13:20.510 --> 00:13:32.849
+It is altogether we were required to have uh you know , it is uh I mentioned earlier we have an even based approach so we needed to have a way to um manage this effectively.
+
+00:13:33.640 --> 00:13:35.599
+Mhm high level components.
+
+00:13:35.609 --> 00:13:41.979
+Uh similar to Phase one , we mostly attached to that as architecture.
+
+00:13:41.989 --> 00:13:44.030
+The global event hub is still there.
+
+00:13:44.039 --> 00:14:24.539
+Uh and we just had a lot of more services , uh I mentioned them before , so all the distribution dispatching , orchestrator layer which is not I mentioned earlier but it's a very important component as well , joe clustering routing optimization , uh the external provided integration that we created as well , uh and we mocked for the prototype given that we didn't have external provided to integrate with , but we we give the foundation for the customer to actually extend that provided distribution and the provided rule engine that I was referring to before and all the life cycle management.
+
+00:14:24.549 --> 00:14:57.039
+Same simulator is also provided for Phase two is mostly an extension of what we have done for Phase one and uh with addition for the entity that we have been simulating , Phase two was already there for Phase one notification as well and uh there were other services that were not a scope for the prototype , but we still required to mark to certain extent , just to have a way to uh to actually being able to simulate an end to end flow.
+
+00:14:57.039 --> 00:15:03.770
+Right ? So without having a customer and a restaurant would have been pretty hard to actually simulate everything.
+
+00:15:03.770 --> 00:15:54.760
+Right ? So we cleared that those services , even though they were in modern school for the process ID , just to be able to demonstrate what were the premises that we were trying to deliver uh as a problem statement was trying to summarize so with that I will jump on a demo and uh it's not a live demo given that we have a very short amount of time today , but I will show you one of the simulation that I've been running on a couple of weeks ago uh and I will go through that uh , as as I speak , so , so this is the simulator that we have built together with the prototype um it's mostly um come from you know phase One and an extension of what we have done for phase one.
+
+00:15:54.840 --> 00:15:58.830
+We here you can see the demographic area that I was talking about.
+
+00:15:58.840 --> 00:16:09.549
+So those three big layer here are the demographic area which were touched configuration too and we have spoken up driver customary restaurant on these three areas.
+
+00:16:09.559 --> 00:16:17.719
+This this system status page is something that is , is actually was actually built throughout the project just to understand what , what was happening in the system.
+
+00:16:17.719 --> 00:16:26.229
+We really realized that at some point , given the nature of the architecture and the event driven approach was very hard to understand what was happening.
+
+00:16:26.239 --> 00:16:40.840
+So this page is actually listening to all the events that are published on even bridge and build up stats that you can uh you know , show up when we have a live demo , you can actually see things moving.
+
+00:16:40.840 --> 00:16:46.770
+But at this point in time it's not possible but I will explain you what it actually does.
+
+00:16:46.780 --> 00:16:56.960
+So international here , we have orders that are coming in the system orders will be going through uh first orchestration layer , which decides what provided to use.
+
+00:16:57.039 --> 00:17:16.229
+We have a basic rejection rate which is a 4% in just a control layer to , to verify that actually things are behaving the way we expect most of the orders will eventually be delivered and the way they got the liver is that they will be assigned to multiple providers as you can see on this map.
+
+00:17:16.239 --> 00:17:21.699
+Sorry , on this chart , um Internal provider is the one based on the configuration that we're going for.
+
+00:17:21.699 --> 00:17:38.829
+The product will take most of the orders while the order to are pretty much mocked but they're just that demonstrate that we are able to to actually slides down the coming order and uh and selectively choose which provided to use for a specific order.
+
+00:17:38.839 --> 00:17:40.959
+Uh on that.
+
+00:17:40.969 --> 00:18:00.250
+Uh this part is mostly around uh will remove some of these which are not required at this point , but this one is mostly around uh showing up on the the the orders that are coming for that specific provider in uh in what phase of the delivery they are at.
+
+00:18:00.260 --> 00:18:13.579
+Uh well now to design , so they are finalized but as you actually , you know , run the simulation , you will see things that are going independent state processing and then eventually finalized.
+
+00:18:13.589 --> 00:18:26.479
+Um Both orders are cannot deliver end to end while for the mock providers , they are not just simulators.
+
+00:18:26.479 --> 00:18:47.229
+So you just have a very simple implementation for the internal provider , we actually simulate the driving behavior as well and since we generate a route , the driver will actually go through the route and that will just take this time , just to simulate the path that the driver has to take to actually deliver the past.
+
+00:18:47.239 --> 00:18:55.599
+And here , it's just a very simple breakdown of how many orders uh drivers have been assigned to write.
+
+00:18:55.599 --> 00:19:11.949
+So just slice down that the most important part on this is actually the dispatching problem , which is taking uh the orders that are coming an internal provider and try to assign to specific drivers.
+
+00:19:11.959 --> 00:19:18.530
+So this is a table that we built as we get orders in the internal providers.
+
+00:19:18.540 --> 00:19:33.989
+And if I zoom down to one of these , you will see basically uh for a specific point in time we have been able to get a certain amount of orders and as you can see them and they are fairly close to each other.
+
+00:19:34.000 --> 00:19:45.060
+So because there is a joke lasting geo clustering layer in between that actually is uh spreading and uh putting together those orders based on the location.
+
+00:19:45.069 --> 00:19:52.630
+And uh with that we we assign we try to assign those orders to the available drivers.
+
+00:19:52.640 --> 00:20:05.160
+So I'm assuming a little bit but it's very confusing at this point , but we have a way to actually , you know , just uh take a specific driver and see the route that the drivers to undergo.
+
+00:20:05.170 --> 00:20:13.619
+Uh and and you just you know , control layer that defined uh whether a driver is assigned correctly to that specific order.
+
+00:20:13.630 --> 00:20:15.719
+Uh There are an assigned driver.
+
+00:20:15.719 --> 00:20:42.650
+This is normal because you mostly clearly more available drivers that incoming orders so that you can optimize the assignment and sometimes even the driver is uh is assigned , you might not see the route and that's because we have an orchestration layer that actually is uh having a locking mechanism to prevent that multiple parallel execution of the solver will assign driver two different orders which will not be optimized.
+
+00:20:42.660 --> 00:21:06.390
+Uh So that's pretty much uh the part on the uh dispatch changing and it is really this is really the core of the of the prototype I will say uh the other parties is just about all the polygon area that we have defined that are uh that you have just seen in the map and the driver search.
+
+00:21:06.400 --> 00:21:17.900
+This is is basically the location service that we have built for phase one and just have a way to quickly by a simple radios are freely by polygons and those are the polygons that we define.
+
+00:21:17.910 --> 00:21:23.579
+We even have your own polygon , you know , Jason and uh and query those drivers.
+
+00:21:23.589 --> 00:21:51.900
+Uh The similar part is really what I was referring to at the beginning , just have a way to simulate entities uh and uh I will not go through this too much but it's just the three and three main entity that we have our customer restaurant and drivers and we provide a way to simulate them so that we can uh tune the system based on the scale that we are looking to achieve with that.
+
+00:21:51.910 --> 00:22:15.949
+I think I can hand it over to Greg that will work you through the next part of the presentation and I am you Thank you mirage and um let me continue where you left off.
+
+00:22:15.959 --> 00:22:25.270
+Um so I'm going to talk about the challenges , the solutions and the lessons learned um from developing this prototype.
+
+00:22:26.439 --> 00:22:51.829
+So our first and biggest challenge was large scope and you know , like we we had to implement so many things and um there were a lot of different moving parts in this whole prototype , so we try to cover as many different services and scopes as we could , focusing more on the breath over the depth.
+
+00:22:51.839 --> 00:23:10.849
+Um this doesn't mean that all the components were empty , but some parts we used either mocking or just simple implementations while providing detailed description on how to improve them and prepare for or production.
+
+00:23:13.439 --> 00:23:22.170
+So our first main problem was the assignment problem and how we can assign drivers to orders.
+
+00:23:22.640 --> 00:23:39.790
+We , we have multiple partners , uh , those who are external and being contracted by our customer and also the customers own driver fleet , then we have a lot of different orders coming in and we need to figure out how to sign those.
+
+00:23:39.800 --> 00:23:48.050
+It's quite a complex problem and especially if you are at scale and you , you have to handle Around 1000 orders per minute.
+
+00:23:48.060 --> 00:23:53.260
+It can become um yeah , like quite complex.
+
+00:23:54.839 --> 00:24:04.050
+So the first thing , the first layer of the order distribution is to pick the right provider for an order.
+
+00:24:04.839 --> 00:24:07.780
+But as we mentioned , we have multiple providers.
+
+00:24:07.790 --> 00:24:13.619
+One representing the customer's internal fleet , the others are representing external contractors.
+
+00:24:13.630 --> 00:24:18.079
+And we also have to consider complex business rules.
+
+00:24:18.079 --> 00:24:25.579
+What mirage already mentioned that you know like how we are controlling the percentage of the orders per provider.
+
+00:24:25.579 --> 00:24:37.770
+Like uh we send half of the orders into the internal fleet , then we have 30% we we send 30% of the orders to one of the biggest contractors based on their agreement.
+
+00:24:37.780 --> 00:24:50.810
+Uh We want to exclude provider from a region or from a specific restaurant or let's say there is a restaurant that has its own um delivery fleet.
+
+00:24:50.819 --> 00:24:54.760
+And we want to route all the all those orders to death fleet.
+
+00:24:54.770 --> 00:25:04.770
+So you know like all these business rules are quite complex and custom for every um region or every geographical area.
+
+00:25:04.780 --> 00:25:11.209
+And also from a technical point of view we have to integrate with and multiple provider a P.
+
+00:25:11.209 --> 00:25:11.280
+I.
+
+00:25:11.280 --> 00:25:11.449
+S.
+
+00:25:11.449 --> 00:25:13.000
+That are different.
+
+00:25:13.000 --> 00:25:15.819
+They have customized , they are customized solutions.
+
+00:25:15.819 --> 00:25:20.030
+Like one supports uh polling order status.
+
+00:25:20.030 --> 00:25:24.280
+The other supports like polling multiple orders at the same time.
+
+00:25:24.290 --> 00:25:31.000
+Uh The others are using callbacks and web hooks to send notifications about the order status change.
+
+00:25:31.000 --> 00:25:49.770
+So , you know like from a technical point of view , uh These are all like quite a big quite big challenges and what we had to solve is like here like designing a flexible service that can handle both internal and external providers.
+
+00:25:50.540 --> 00:25:55.280
+So our solution is Basically two main components.
+
+00:25:55.290 --> 00:26:02.119
+The first one is that we created an abstraction for a provider uh that shares a common A.
+
+00:26:02.119 --> 00:26:02.349
+P.
+
+00:26:02.349 --> 00:26:02.670
+I.
+
+00:26:03.239 --> 00:26:04.420
+As a side effect.
+
+00:26:04.430 --> 00:26:07.729
+This treats internal and external providers the same way.
+
+00:26:07.729 --> 00:26:16.260
+So if you need to support the new provider we just need to implement a provider instance and and plug it into the system.
+
+00:26:16.640 --> 00:26:23.560
+The second component is a rules engine which allows choosing the right provider based on business rules.
+
+00:26:25.239 --> 00:26:35.130
+So to test this integration , we created mob providers and to to to simulate external providers with simple and basic functionalities.
+
+00:26:35.140 --> 00:26:56.560
+And we also implemented our internal provider as a as a web hook provider and the design resulted in a robust and flexible solution , we could test the system with three providers to mark and one concrete implementation and it naturally solved a customer request that we received along the way.
+
+00:26:56.560 --> 00:27:07.040
+So uh they wanted to to create um like a fullback mechanism for rejected orders.
+
+00:27:07.050 --> 00:27:13.160
+So let's say there is an order coming in , it is assigned to one provider and it is being rejected.
+
+00:27:13.170 --> 00:27:47.890
+Uh And what they wanted to do is to find out this um in order to all the providers that are in the system and basically wait for the one that replies the first who's the fastest and replies or accepts that order first and like to to implement this was quite easy because with our design we could just say that you know like okay introduce another provider which you call fan out provider and you just handle this logic under the hood.
+
+00:27:47.900 --> 00:27:52.560
+But the actual um ap I stays the same.
+
+00:27:56.040 --> 00:28:02.160
+So the next one was how we are going to optimize the assignments of drivers to orders.
+
+00:28:03.140 --> 00:28:10.380
+So in the internal provider we take all the orders and we want to sign these orders to drivers.
+
+00:28:10.390 --> 00:28:19.180
+But these um we have these multiple different strategies which we call like basic , efficient and optimal.
+
+00:28:19.189 --> 00:28:29.859
+So with the basic um strategy , what we do is that we are going to assign one order per driver and that's it.
+
+00:28:30.239 --> 00:28:54.439
+And um that was the main the the the original goal for this prototype and the second and the third the efficient and optimal are where's tragic als so what does this mean ? Like um assigning multiple orders per driver ? Uh There are two main approaches.
+
+00:28:54.449 --> 00:29:02.770
+One is what we call sequential , where we are um handling one order delivery as an atomic unit.
+
+00:29:03.140 --> 00:29:15.160
+And we are like when we are assigning multiple orders to driver , these are like a substantial flow of orders that are being delivered.
+
+00:29:16.040 --> 00:29:44.949
+And the actual optimal solution would be where we are breaking up the actual order delivery into a pickup and a drop off um visit and we can mix these together and and find an optimal way , an optimal route so that we can pick up let's say like two orders on the way and then deliver to customer one and then two customers too.
+
+00:29:44.959 --> 00:30:23.550
+So that that would mean like a mixed pick up drop off time constraint vehicle routing problem implementation and we mhm um we we found the solution for implementing this solution for the second one um provided that we had such a big scope , it was quite a good you know like um win for for a stretch goal but yeah like the optimal solution um is a little bit more complicated but obviously it is um possible to implement.
+
+00:30:25.439 --> 00:30:45.459
+So the next one was scaling and and integration um how can you scale a system for 50,000 online drivers and handling A 1000 incoming orders per minute.
+
+00:30:46.439 --> 00:31:11.459
+So our customers in Indonesia and this is a huge geographic area and you know like how can we handle these orders coming in and how can we handle the load um incoming Amount of data to the system from uh from tracking the 50,000 drivers , um like streaming their GPS locations.
+
+00:31:11.839 --> 00:31:53.859
+So this this was a huge challenge um and also like how can we verify and demonstrate to the customer that this solution scales and how can we integrate with but the system that they are still working on so from from the solution point of view , uh for the scale our solution was to use geo clustering and basically um breaking breaking down a big problem into small sub problems and uh and and find solutions for those sub problems locally.
+
+00:31:53.869 --> 00:32:37.750
+And we were grouping the orders based on on relative proximity and we were using um like the the drivers search in these clusters , so we don't we didn't have to like include drivers from somewhere quite far , we could include the drivers from close and that way we could that way we could um like decrease the search space for a linear optimization problem and and not allow these search space to explode and get back the results quite um a relatively short time.
+
+00:32:37.760 --> 00:32:52.449
+And the other part was of our solution was to build a simulator right ? Like uh to to demonstrate and verify and test out what is going on in the system and how the system is actually um handling the load.
+
+00:32:53.739 --> 00:33:15.439
+So the simulator , like implementing the simulator and what you saw the demo is the simulator that took around like 1/3 of our development time because um it was quite complex to to showcase um to to simulate a real world scenario.
+
+00:33:15.439 --> 00:33:21.959
+Right ? And um we mocked the integration with the end solution.
+
+00:33:21.959 --> 00:33:43.140
+So the customer has the actual base how how they can integrate um with the services that we have and then it was an iterative process and we were changing the design um multiple times when we were facing problems while testing the scale.
+
+00:33:43.150 --> 00:34:53.429
+So we re architecture of a couple of components , we had to resize um like resources , like we had to up um like for example , uh Change already is cluster two application group , we had to use read replicas instead of like just upsizing the actual readies , for instance , we were we had to play around the matching sizes um and Windows for kinesis data streams , we had to use um enhanced fan out for kinesis um and as you can see , we we faced exotic errors and problems while we were testing , we we were we generated the chef to ticket uh we it was because there was an IOT call uh called described endpoint uh in in our simulator and when we were Ah spinning up 9000 fargate containers uh and it was like bombing the IOT service , that was not really prepared for this in the Singapore region.
+
+00:34:53.439 --> 00:35:12.830
+Um it was quite interesting to see how How the engineers were handling these self-2 tickets and um and what they were like um like like increasing like what type of resources they were introducing to the system.
+
+00:35:12.840 --> 00:35:28.969
+Uh We also got um or being was were reached out by incognito service team member asking us about like what is our use case because they are seeing unusual activity on our account.
+
+00:35:29.340 --> 00:35:44.469
+We had to increase account limits , lambda concurrency um E c s compute power and we we hit the lambda concurrency limits multiple times because of um really different reasons.
+
+00:35:44.469 --> 00:36:00.179
+Sometimes it was a dynamo dB um read right capacity was not enough and was not set up properly so we got right throttle events , we had to change it to auto scaling.
+
+00:36:00.189 --> 00:36:14.340
+Um when we were redeploying DCs services , sometimes we had cloud formation timing out and we couldn't really touch the whole system for 34 hours because it was timing out.
+
+00:36:14.350 --> 00:36:42.699
+Um We had to um like one of the one of the instances when we were really architecture and components was uh the solver in the silver we are we were implementing a distance matrix calculation that took way longer than a lambda time out and we had to change that to a synchronous um to to a synchronous , a synchronous small.
+
+00:36:43.429 --> 00:37:04.929
+So yeah these are the actual results for for scaling and then the last one what we wanted to highlight as a as a challenge is that we introduced new technologies to the customer and the customer was very very cost conscious.
+
+00:37:04.939 --> 00:37:59.820
+So um they didn't have experience with even driven architecture , they didn't have experience with survey lists or IOT and especially in phase one in the very beginning they really didn't have the confidence to to trust these um these services and if they are okay for them they were they were mostly like focusing on like let's have easy to instances and let's deploy docker containers or on these ec two instances as microservices so we had to introduce them um to all these these new technologies uh we also had to integrate with their legacy solution and you know like the they're there , they've been actively developing their new solutions so we had to provide integration with that too.
+
+00:37:59.830 --> 00:38:30.989
+So um from the from the cost conscious point of view we had to um do like design decisions in the very beginning for example we had we we did a custom implementation for tracking versus the location service because location service pricing was too high and also the general availability was at the time was was not suiting our needs.
+
+00:38:31.000 --> 00:38:59.439
+Um we decided to use self hosted routing um instead of using google maps were we are hosting graph hopper instances in Fargate and uh we had to hack a little bit with the app conflict because um even though it has a mobile slash Iot use case um in their in their pricing structure it is really not prepared for the mobile and IOT scenario.
+
+00:38:59.439 --> 00:39:12.879
+So with with some Pre calculations uh if you have a lot of devices let's say like 100,000 devices and you want to use that conflict on your mobile devices.
+
+00:39:12.879 --> 00:39:21.070
+Sometimes if you change one conflict parameter that would cost you like $2,000 to roll it out and that is unacceptable.
+
+00:39:21.080 --> 00:39:45.340
+So yeah um we were doing all these refinements and then um tiny hacks so that we can um provide a cost um cost effective solution for our customer and um yeah like at the end we're tracking a driver in the system.
+
+00:39:45.719 --> 00:40:05.739
+We we reached um cost estimation for 10 cents per month And for handling one order um was around 3.8 cents per uh per order A little bit of the project.
+
+00:40:05.750 --> 00:40:11.520
+Um we we used 37 Amazon or aws services.
+
+00:40:11.530 --> 00:40:17.320
+Uh we used various open source frameworks , um multiple languages.
+
+00:40:17.909 --> 00:40:25.830
+The project grew to the point where building the packages in the Lambdas took around like 80/200.
+
+00:40:26.310 --> 00:40:40.899
+And at the end we did a fresh deployment to to a new account and that took us over an hour just to deploy the whole solution and the impact.
+
+00:40:40.929 --> 00:41:08.030
+Um So travel local eats has already rolled out phase one while we were working on phase two so obviously we were able to earn trust from from the customer and once we delivered phase two um They were starting to to build upon that and and they are in the process of deploying phase two into production.
+
+00:41:08.040 --> 00:41:12.530
+Um So travel okay , it's represents around 400 K.
+
+00:41:12.530 --> 00:41:12.679
+A.
+
+00:41:12.679 --> 00:41:12.909
+R.
+
+00:41:12.909 --> 00:41:13.350
+R.
+
+00:41:13.360 --> 00:41:38.899
+Um And from from reuse perspective we already have another customer from Indonesia who is um psychopath and they are an instant delivery service and their goal was to scale 30 X by the end of 2021 this opportunity represents around the 500 K.
+
+00:41:38.899 --> 00:41:39.719
+Plus A.
+
+00:41:39.719 --> 00:41:39.919
+R.
+
+00:41:39.919 --> 00:41:40.330
+R.
+
+00:41:40.409 --> 00:41:50.330
+Um and we have already delivered both phase ones and tools for this customer in around 10 days.
+
+00:41:50.709 --> 00:41:58.620
+And um we have still this , this project kind of like going on.
+
+00:41:58.629 --> 00:42:17.620
+Um We are rebranding into hyperlocal delivery solution and we have amazon foods um interested in one , a few parts of the solution and we have two other customers already uh in Q who are very interested in taking this prototype.
+
+00:42:18.199 --> 00:42:23.100
+So that's it about this um , this prototype.
+
+00:42:23.110 --> 00:42:25.310
+And we're open for questions.
+
+00:42:26.000 --> 00:42:26.419
+Thank you.
+
+00:42:50.300 --> 00:42:54.000
+Okay , stop recording here.
+
+00:42:54.010 --> 00:42:55.540
+Unless anyone has any questions.
+
+00:42:55.540 --> 00:42:56.729
+That was really awesome.
+
+00:42:57.600 --> 00:43:01.290
+And I can't wait to see how this unravels and unfolds , I should say unfolds.
+
+00:43:01.290 --> 00:43:05.149
+Parliament unravels with uh food service delivery.
+
+00:43:05.149 --> 00:43:08.010
+I can think of about 10 Delivery Services.
+
+00:43:08.010 --> 00:43:08.419
+I've tried.
+
+00:43:08.419 --> 00:43:09.520
+They could benefit from this.
+
+00:43:11.399 --> 00:43:11.929
+Awesome.
+
+00:43:13.800 --> 00:43:14.020
+Yeah.
+
+00:43:14.030 --> 00:43:16.620
+Does anyone have any questions to the team ?
+

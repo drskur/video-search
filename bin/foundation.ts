@@ -4,18 +4,18 @@ import * as cdk from 'aws-cdk-lib';
 import { VideoSearchStack } from '../stack/video-search-stack';
 import {KendraStack} from "../stack/kendra";
 import * as dotenv from 'dotenv'
+import {DomainNameStack} from "../stack/domain-name-stack";
+import {DevopsStack} from "../stack/devops-stack";
 
 dotenv.config();
 
 const app = new cdk.App();
-new VideoSearchStack(app, 'VideoSearchStack', {
-    env: {
-        region: 'ap-northeast-1'
-    }
-});
 
-new KendraStack(app, 'VideoSearchKendraStack', {
-    env: {
-        region: process.env.KENDRA_REGION
-    }
-});
+
+new DomainNameStack(app, 'VideoSearchDomainNameStack');
+
+new DevopsStack(app, 'VideoSearchDevopsStack');
+
+// new VideoSearchStack(app, 'VideoSearchStack');
+
+// new KendraStack(app, 'VideoSearchKendraStack');

@@ -21,8 +21,10 @@ async fn handler() -> Result<(), Error> {
 
     let json = tokio::fs::read_to_string("a.json").await?;
     let mut subtitle = Subtitle::from_transcribe_output(&json)?;
+    subtitle.save_as_vtt("a.vtt").await?;
     subtitle.translate(&client, "en", "ko").await?;
-    subtitle.save_as_srt("a.srt").await?;
+    subtitle.save_as_srt("ko.a.srt").await?;
+    subtitle.save_as_vtt("ko.a.vtt").await?;
 
     println!("{:?}", subtitle);
 
