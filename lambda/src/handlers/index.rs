@@ -1,7 +1,7 @@
 use actix_web::error::ErrorInternalServerError;
 use actix_web::HttpResponse;
 use actix_web::get;
-use actix_web::http::header::ContentType;
+use actix_web::http::header::{self};
 use askama::Template;
 
 #[derive(Template)]
@@ -15,7 +15,7 @@ pub async fn handler() -> actix_web::Result<HttpResponse> {
         .map_err(|e| ErrorInternalServerError(e))?;
 
     let response = HttpResponse::Ok()
-        .content_type(ContentType::html())
+        .content_type(header::ContentType::html())
         .body(html);
 
     Ok(response)

@@ -6,6 +6,7 @@
   },
   "scripts": {
     "build": "cd lambda && make all",
+    "dev": "cd lambda && cargo watch -x 'run --bin app'",
     "test": "jest",
     "cdk": "cdk"
   },
