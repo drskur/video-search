@@ -385,6 +385,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "aws-sdk-dynamodb"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3fd2425a1c3de7d9a9b54a8289a6f89c65910ef4ba1cc38ac026f17dc437341c"
+dependencies = [
+ "aws-endpoint",
+ "aws-http",
+ "aws-sig-auth",
+ "aws-smithy-async",
+ "aws-smithy-client",
+ "aws-smithy-http",
+ "aws-smithy-http-tower",
+ "aws-smithy-json",
+ "aws-smithy-types",
+ "aws-types",
+ "bytes",
+ "fastrand",
+ "http",
+ "tokio-stream",
+ "tower",
+]
+
+[[package]]
 name = "aws-sdk-kendra"
 version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1300,10 +1323,12 @@ dependencies = [
  "anyhow",
  "askama",
  "aws-config",
+ "aws-sdk-dynamodb",
  "aws-sdk-kendra",
  "aws-sdk-transcribe",
  "aws-sdk-translate",
  "aws_lambda_events",
+ "chrono",
  "dotenv",
  "env_logger",
  "lambda-web",
@@ -1311,6 +1336,8 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
+ "url-escape",
+ "uuid",
 ]
 
 [[package]]
@@ -2269,10 +2296,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "url-escape"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "44e0ce4d1246d075ca5abec4b41d33e87a6054d08e2366b63205665e950db218"
+dependencies = [
+ "percent-encoding",
+]
+
+[[package]]
 name = "urlencoding"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "68b90931029ab9b034b300b797048cf23723400aa757e8a2bfb9d748102f9821"
+
+[[package]]
+name = "uuid"
+version = "0.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
+dependencies = [
+ "getrandom",
+ "serde",
+]
 
 [[package]]
 name = "valuable"

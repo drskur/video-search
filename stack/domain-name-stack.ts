@@ -10,9 +10,9 @@ export class DomainNameStack extends Stack {
         const certArn = process.env.CERTIFICATE_ARN || '';
         const zoneId = process.env.HOSTED_ZONE_ID || '';
 
-        const domainName = this.createApiGatewayDomainName('VideoApi', 'video-api.drskur.xyz', certArn);
+        const domainName = this.createApiGatewayDomainName('VideoApi', 'video-search.drskur.xyz', certArn);
         const zone = this.findHostedZone(zoneId, 'drskur.xyz');
-        this.createRoute53Record('VideoApiRecord', zone, 'video-api', domainName.domainNameAliasDomainName);
+        this.createRoute53Record('VideoApiRecord', zone, 'video-search', domainName.domainNameAliasDomainName);
     }
 
     private createApiGatewayDomainName(id: string, domainName: string, certArn: string): DomainName {

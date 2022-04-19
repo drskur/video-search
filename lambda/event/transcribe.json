@@ -1,0 +1,40 @@
+{
+  "Records": [
+    {
+      "eventVersion": "2.1",
+      "eventSource": "aws:s3",
+      "awsRegion": "us-east-1",
+      "eventTime": "2022-04-19T08:23:31.431Z",
+      "eventName": "ObjectCreated:CompleteMultipartUpload",
+      "userIdentity": {
+        "principalId": "AWS:AROA4DS453I3RXFFYZYI7:drskur-Isengard"
+      },
+      "requestParameters": {
+        "sourceIPAddress": "14.47.83.2"
+      },
+      "responseElements": {
+        "x-amz-request-id": "BJ8MDMRDKXD4MTWE",
+        "x-amz-id-2": "TcemNjPOxdsViVurToHMILngotH0pxCUl7vaaAUroFBAvDMEdiv0raT1aFAFqT7yn2laUGAGhJfX9BroakgPihJSM9rHwyyfOHVvmvuyuaQ="
+      },
+      "s3": {
+        "s3SchemaVersion": "1.0",
+        "configurationId": "arn:aws:cloudformation:us-east-1:832344807991:stack/VideoSearchLambdaStack/a5662390-bfab-11ec-8efb-0ac35cd460dd-6744339708563681708",
+        "bucket": {
+          "name": "video-search-drskur",
+          "ownerIdentity": {
+            "principalId": "A2FKNYE2ZPQ0D1"
+          },
+          "arn": "arn:aws:s3:::video-search-drskur"
+        },
+        "object": {
+          "key": "video/Jamie%27s+Quick+%26+Easy+Egg+Fried+Rice+_+Jamie+Oliver.en-GB.mp4",
+          "size": 66012015,
+          "urlDecodedKey": null,
+          "versionId": null,
+          "eTag": "f44b75f032264e40d8defd40b5e82257-4",
+          "sequencer": "00625E7164DBD7F47F"
+        }
+      }
+    }
+  ]
+}

@@ -8,8 +8,8 @@ name = "index"
 path = "src/cmd/index.rs"
 
 [[bin]]
-name = "subtitle"
-path = "src/cmd/subtitle.rs"
+name = "transcribe"
+path = "src/cmd/transcribe.rs"
 
 [[bin]]
 name = "app"
@@ -24,6 +24,7 @@ aws-config = "0.10.1"
 aws-sdk-kendra = "0.10.1"
 aws-sdk-transcribe = "0.10.1"
 aws-sdk-translate = "0.10.1"
+aws-sdk-dynamodb = "0.10.1"
 dotenv = "0.15"
 lambda_runtime = "0.5.1"
 aws_lambda_events = "0.6.1"
@@ -36,6 +37,9 @@ lambda-web = { version = "0.1.9", features = ["actix4"] }
 env_logger = "0.9"
 actix-web-httpauth = "0.6.0"
 askama = "0.11.1"
+uuid = { version = "0.8", features = ["serde", "v4"] }
+chrono = "0.4"
+url-escape = "0.1.1"
 
 [build-dependencies]
 askama = "0.11.1"

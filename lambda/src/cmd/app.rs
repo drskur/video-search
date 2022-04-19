@@ -27,6 +27,7 @@ async fn main() -> Result<(), LambdaError> {
             .wrap(auth)
             .wrap(Logger::default())
             .service(lib::handlers::index::handler)
+            .service(lib::handlers::video_new::handler)
     };
 
     if is_running_on_lambda() {
