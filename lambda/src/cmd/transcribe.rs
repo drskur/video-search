@@ -48,7 +48,7 @@ async fn handler(event: LambdaEvent<S3Event>) -> Result<(), Error> {
                 .table_name(&table_name)
                 .item("id", AttributeValue::S(id.clone()))
                 .item("created_at", AttributeValue::S(Utc::now().to_string()))
-                .item("video_key", AttributeValue::S(key.clone()))
+                .item("video_key", AttributeValue::S(url_decode(&key)))
                 .item("title", AttributeValue::S(url_decode(title)))
                 .item("lang", AttributeValue::S(lang.to_string()))
                 .send()
@@ -63,8 +63,10 @@ async fn handler(event: LambdaEvent<S3Event>) -> Result<(), Error> {
 
             transcribe.start_transcription_job()
                 .language_code(LanguageCode::from(lang))
-                .transcription_job_name(id)
+                .transcription_job_name(&id)
                 .media(media)
+                .output_bucket_name(&bucket)
+                .output_key(format!("transcription/{}", &id))
                 .send()
                 .await
                 .unwrap();

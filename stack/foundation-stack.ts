@@ -22,7 +22,7 @@ export class FoundationStack extends Stack {
         const queue = this.createSQS();
         new aws_ssm.StringParameter(this, "SQS-Video-Param", {
             parameterName: '/video-search/queue/subtitle',
-            stringValue: queue.queueName
+            stringValue: queue.queueArn
         })
     }
 
@@ -38,10 +38,6 @@ export class FoundationStack extends Stack {
             partitionKey: {
                 name: 'id',
                 type: aws_dynamodb.AttributeType.STRING,
-            },
-            sortKey: {
-                name: 'created_at',
-                type: aws_dynamodb.AttributeType.NUMBER
             },
             readCapacity: 2,
             writeCapacity: 2,

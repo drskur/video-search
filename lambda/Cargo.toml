@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [[bin]]
-name = "index"
-path = "src/cmd/index.rs"
+name = "transcribe-complete"
+path = "src/cmd/transcribe-complete.rs"
 
 [[bin]]
 name = "transcribe"
@@ -25,6 +25,8 @@ aws-sdk-kendra = "0.10.1"
 aws-sdk-transcribe = "0.10.1"
 aws-sdk-translate = "0.10.1"
 aws-sdk-dynamodb = "0.10.1"
+aws-sdk-s3 = "0.10.1"
+aws-sdk-sqs = "0.10.1"
 dotenv = "0.15"
 lambda_runtime = "0.5.1"
 aws_lambda_events = "0.6.1"
@@ -40,6 +42,7 @@ askama = "0.11.1"
 uuid = { version = "0.8", features = ["serde", "v4"] }
 chrono = "0.4"
 url-escape = "0.1.1"
+
 
 [build-dependencies]
 askama = "0.11.1"

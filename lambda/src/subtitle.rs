@@ -93,13 +93,13 @@ impl Subtitle {
                 item.start_time = it.start_time.unwrap_or(0f32);
                 item.end_time = it.end_time.unwrap_or(0f32);
                 item.content = it.alternatives;
-            } else if it.alternatives.as_str() != "." {
+            } else if it.alternatives.as_str() != "." && it.alternatives.as_str() != "?" {
                 item.content = format!("{} {}", item.content, it.alternatives);
                 if let Some(et) = it.end_time {
                     item.end_time = et;
                 }
             } else {
-                item.content = format!("{}.", item.content);
+                item.content = format!("{}{}", item.content, it.alternatives);
                 items.push(item.clone());
                 item = SubtitleItem::default();
             }
