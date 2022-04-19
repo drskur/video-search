@@ -60,7 +60,7 @@ export class LambdaStack extends Stack {
             timeout: Duration.seconds(10),
             environment: {
                 DYNAMODB_TABLE_NAME: dynamoDbTable.tableName,
-                QUEUE_ARN: queue.queueArn,
+                QUEUE_URL: queue.queueUrl,
             }
         });
 

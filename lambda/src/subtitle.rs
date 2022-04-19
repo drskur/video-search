@@ -1,5 +1,5 @@
 use aws_sdk_translate::Client;
-use serde::{Deserialize, Deserializer, de};
+use serde::{Serialize, Deserialize, Deserializer, de};
 use serde_json::Value;
 use tokio::io::{AsyncWriteExt, BufReader};
 
@@ -177,5 +177,22 @@ impl Subtitle {
         let ms = (t  * 1000_f32) as i32;
 
         format!("{:02}:{:02}:{:02}{}{:03}", h, m, s, d, ms)
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SubtitleQueueMessage {
+    pub video_id: String,
+    pub content_language: String,
+    pub translate_language: Option<String>
+}
+
+impl SubtitleQueueMessage {
+    pub fn new(video_id: &str, content_language: &str, translate_language: Option<&str>) -> Self {
+        SubtitleQueueMessage {
+            video_id: video_id.to_owned(),
+            content_language: content_language.to_owned(),
+            translate_language: translate_language.map(|s| s.to_owned())
+        }
     }
 }
