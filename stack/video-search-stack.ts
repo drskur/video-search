@@ -33,11 +33,7 @@ export class VideoSearchStack extends Stack {
         "VIDEO_INDEX_NAME": videoIndexName,
       }
     });
-    fn.addToRolePolicy(new PolicyStatement({
-      effect: Effect.ALLOW,
-      resources: [`arn:aws:kendra:${region}:${this.account}:index/*`],
-      actions: ["kendra:*"],
-    }))
+
 
     return fn;
   }

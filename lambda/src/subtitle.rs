@@ -166,6 +166,22 @@ impl Subtitle {
         Ok(())
     }
 
+    pub async fn vtt(&self) -> String {
+        let mut vtt = String::new();
+
+        vtt.push_str("WEBVTT\n\n");
+
+        for (_i, item) in self.items.iter().enumerate() {
+            vtt.push_str(&format!("{} --> {}\n",
+                                Self::time_format(item.start_time, "."),
+                                Self::time_format(item.end_time, ".")));
+            vtt.push_str(&item.content);
+            vtt.push_str("\n\n");
+        }
+
+        vtt
+    }
+
     fn time_format(t: f32, d: &str) -> String {
         let mut t = t;
         let h = (t as i32) / 3600;

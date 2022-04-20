@@ -1,0 +1,93 @@
+use aws_lambda_events::event::sqs::SqsEvent;
+use aws_sdk_dynamodb::model::AttributeValue;
+use aws_sdk_s3::types::ByteStream;
+use lambda_runtime::{Error, service_fn, LambdaEvent};
+use lib::subtitle::{Subtitle, SubtitleQueueMessage};
+
+#[tokio::main]
+async fn main() -> Result<(), Error> {
+    let func = service_fn(handler);
+    lambda_runtime::run(func).await?;
+
+    Ok(())
+}
+
+async fn handler(event: LambdaEvent<SqsEvent>) -> Result<(), Error> {
+
+    println!("{:?}", serde_json::to_string(&event.payload).unwrap());
+
+    let table_name = dotenv::var("DYNAMODB_TABLE_NAME")
+        .expect("DYNAMODB_TABLE_NAME must be set.");
+    let bucket_name = dotenv::var("BUCKET_NAME")
+        .expect("BUCKET_NAME must be set.");
+    let shared_config = aws_config::from_env()
+        .load().await;
+
+    let dynamodb = aws_sdk_dynamodb::Client::new(&shared_config);
+    let s3 = aws_sdk_s3::Client::new(&shared_config);
+    let translate = aws_sdk_translate::Client::new(&shared_config);
+
+    for record in event.payload.records {
+        let body = record.body.expect("message body must be exist");
+        let msg = serde_json::from_str::<SubtitleQueueMessage>(&body)
+            .expect(&format!("invalid message: {}", body));
+
+        let transcription_key = format!("transcription/{}", msg.video_id);
+        let json = load_text_object(&s3, &bucket_name, &transcription_key).await.unwrap();
+
+        let mut subtitle = Subtitle::from_transcribe_output(&json).unwrap();
+
+        let lang = if let Some(target_language) = msg.translate_language {
+            subtitle.translate(&translate, &msg.content_language, &target_language).await.unwrap();
+            target_language
+        } else {
+            msg.content_language
+        };
+
+        let vtt = subtitle.vtt().await;
+        put_object(&s3, &bucket_name, &format!("subtitle/{}/{}.vtt", msg.video_id, lang), vtt.as_bytes()).await.unwrap();
+        update_subtitle(&dynamodb, &table_name, &msg.video_id, &lang).await.unwrap();
+    }
+
+    Ok(())
+}
+
+async fn load_text_object(client: &aws_sdk_s3::Client, bucket: &str, key: &str) -> Result<String, Error> {
+    let output = client.get_object()
+        .bucket(bucket)
+        .key(key)
+        .send()
+        .await?;
+
+    let bs = output.body.collect().await?.into_bytes();
+    let text = std::str::from_utf8(&bs)?;
+
+    Ok(text.to_string())
+}
+
+async fn put_object(client: &aws_sdk_s3::Client, bucket: &str, key: &str, content: &[u8]) -> Result<aws_sdk_s3::output::PutObjectOutput, Error> {
+
+    let bs = ByteStream::from(content.to_vec());
+    let output = client.put_object()
+        .bucket(bucket)
+        .key(key)
+        .body(bs)
+        .send()
+        .await?;
+
+    Ok(output)
+}
+
+async fn update_subtitle(client: &aws_sdk_dynamodb::Client, table_name: &str, id: &str, lang: &str) -> Result<(), Error> {
+    client.update_item()
+        .table_name(table_name)
+        .key("id", AttributeValue::S(id.to_owned()))
+        .update_expression("SET #subtitles = list_append(if_not_exists(#subtitles, :empty_list), :lang)")
+        .expression_attribute_names("#subtitles", "subtitles")
+        .expression_attribute_values(":lang", AttributeValue::L(vec![AttributeValue::S(lang.to_owned())]))
+        .expression_attribute_values(":empty_list", AttributeValue::L(vec![]))
+        .send()
+        .await?;
+
+    Ok(())
+}

@@ -1,6 +1,8 @@
-import {aws_dynamodb, aws_sqs, aws_ssm, CfnOutput, Stack, StackProps} from "aws-cdk-lib";
+import {aws_cloudfront, aws_dynamodb, aws_sqs, aws_ssm, CfnOutput, Stack, StackProps} from "aws-cdk-lib";
 import {Construct} from "constructs";
 import {Bucket} from "aws-cdk-lib/aws-s3";
+import {Distribution} from "aws-cdk-lib/aws-cloudfront";
+import {S3Origin} from "aws-cdk-lib/aws-cloudfront-origins";
 
 export class FoundationStack extends Stack {
 

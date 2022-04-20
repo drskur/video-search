@@ -12,6 +12,10 @@ name = "transcribe"
 path = "src/cmd/transcribe.rs"
 
 [[bin]]
+name = "subtitle"
+path = "src/cmd/subtitle.rs"
+
+[[bin]]
 name = "app"
 path = "src/cmd/app.rs"
 

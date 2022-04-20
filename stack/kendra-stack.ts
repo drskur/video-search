@@ -1,4 +1,4 @@
-import {Stack, StackProps} from "aws-cdk-lib";
+import {aws_ssm, Stack, StackProps} from "aws-cdk-lib";
 import {Construct} from "constructs";
 import {Effect, PolicyStatement, Role, ServicePrincipal} from "aws-cdk-lib/aws-iam";
 import {CfnIndex} from "aws-cdk-lib/aws-kendra";
@@ -9,21 +9,23 @@ export class KendraStack extends Stack {
         super(scope, id, props);
 
         const role = this.createKendraIndexRole("KendraVideoIndexRole");
-        this.createCfnIndex("VideoIndex", role);
+        this.createCfnIndex("VideoSearchIndex", "VideoSearchIndex", role);
     }
 
-    private createCfnIndex(id: string, role: Role): CfnIndex {
-        const indexName = process.env.VIDEO_INDEX_NAME;
-        if (!indexName) {
-            throw new Error("must be set VIDEO_INDEX_NAME");
-        }
-
-        return  new CfnIndex(this, id, {
+    private createCfnIndex(id: string, indexName: string, role: Role): CfnIndex {
+        const index = new CfnIndex(this, id, {
             name: indexName,
             edition: "DEVELOPER_EDITION",
             description: "video caption index",
             roleArn: role.roleArn,
         });
+
+        new aws_ssm.StringParameter(this, "Kendra-Param", {
+           parameterName: '/video-search/kendra/video',
+           stringValue: index.attrId
+        });
+
+        return index;
     }
 
     private createKendraIndexRole(id: string): Role {
