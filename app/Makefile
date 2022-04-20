@@ -1,6 +1,7 @@
-build:
+dist:
 	npm run build
-	mkdir -p ../.dist/app
+	rm -rf ../.dist/app
+	mkdir -p ../.dist/app/
 	cp -r .output ../.dist/app/
 	cp index.js ../.dist/app/
 	cp package.json ../.dist/app/
