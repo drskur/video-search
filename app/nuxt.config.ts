@@ -12,7 +12,11 @@ export default defineNuxtConfig({
         preset: 'aws-lambda'
     },
     app: {
-        cdnURL: `${process.env.CONTENT_HOST}/demo/`,
+        cdnURL: `${process.env.NUXT_CONTENT_HOST}/demo/`,
+    },
+    env: {
+        NUXT_CONTENT_HOST: 'https://d22ghy1m0u38xp.cloudfront.net',
+        NUXT_DYNAMODB_TABLE_NAME: 'video-search-video'
     },
     tailwindcss: {
         viewer: false,

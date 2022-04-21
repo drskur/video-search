@@ -1,4 +1,7 @@
-all: transcribe transcribe-complete subtitle dist
+all: app transcribe transcribe-complete subtitle dist
+
+app:
+	cargo lambda build --release --bin app --target aarch64-unknown-linux-gnu
 
 transcribe:
 	cargo lambda build --release --bin transcribe --target aarch64-unknown-linux-gnu

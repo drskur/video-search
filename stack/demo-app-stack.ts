@@ -1,10 +1,13 @@
-import {aws_lambda, aws_s3, aws_s3_deployment, aws_ssm, Stack, StackProps} from "aws-cdk-lib";
+import {aws_dynamodb, aws_lambda, aws_s3, aws_s3_deployment, aws_ssm, Stack, StackProps} from "aws-cdk-lib";
 import {Construct} from "constructs";
 import {Architecture, Code, IFunction, Runtime} from "aws-cdk-lib/aws-lambda";
 import {HttpApi, } from "@aws-cdk/aws-apigatewayv2-alpha";
 import {HttpLambdaIntegration} from "@aws-cdk/aws-apigatewayv2-integrations-alpha";
 import {IBucket} from "aws-cdk-lib/aws-s3";
 import {Source} from "aws-cdk-lib/aws-s3-deployment";
+import { ITable } from "aws-cdk-lib/aws-dynamodb";
+import {Vpc} from "aws-cdk-lib/aws-ec2";
+import {PolicyStatement} from "aws-cdk-lib/aws-iam";
 
 export class DemoAppStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
@@ -13,7 +16,12 @@ export class DemoAppStack extends Stack {
         const bucketName = aws_ssm.StringParameter.fromStringParameterName(this, "ContentBucketName", "/video-search/bucket-name/content");
         const bucket = aws_s3.Bucket.fromBucketName(this, "ContentBucket", bucketName.stringValue);
 
-        const demoFunction = this.createDemoAppFunction(bucket);
+        const contentDomainName = aws_ssm.StringParameter.fromStringParameterName(this, "ContentHostName", '/video-search/domain-name/content');
+
+        const dynamoTableName = aws_ssm.StringParameter.fromStringParameterName(this, "DynamoDBTableName", "/video-search/dynamodb-table-name/video");
+        const dynamodbTable = aws_dynamodb.Table.fromTableName(this, "DynamoDBVideoTable", dynamoTableName.stringValue);
+
+        const demoFunction = this.createDemoAppFunction(bucket, contentDomainName.stringValue, dynamodbTable);
         this.createDemoApi(demoFunction);
     }
 
@@ -23,29 +31,25 @@ export class DemoAppStack extends Stack {
         });
     }
 
-    private createDemoAppFunction(bucket: IBucket): aws_lambda.Function {
+    private createDemoAppFunction(bucket: IBucket, contentHostName: string, dynamoDbTable: ITable): aws_lambda.Function {
+
         const fn = new aws_lambda.Function(this, "DemoAppFunction", {
             functionName: `${this.stackName}-Demo`,
-            runtime: Runtime.NODEJS_14_X,
+            runtime: Runtime.PROVIDED_AL2,
             architecture: Architecture.ARM_64,
-            memorySize: 512,
+            memorySize: 128,
             code: Code.fromAsset('./.dist/app/'),
-            handler: "index.handler",
+            handler: "bootstrap",
             environment: {
-            }
+                CONTENT_HOST: contentHostName,
+                DYNAMODB_TABLE_NAME: dynamoDbTable.tableName,
+            },
         });
 
-        new aws_s3_deployment.BucketDeployment(this, "DemoAppFunction-Assets", {
-            sources: [Source.asset("./.dist/app/.output/public/")],
-            destinationBucket: bucket,
-            destinationKeyPrefix: 'demo',
-        });
-
-        //
-        // fn.addToRolePolicy(new PolicyStatement({
-        //     resources: [ dynamoDbTable.tableArn ],
-        //     actions: [ '*' ]
-        // }));
+        fn.addToRolePolicy(new PolicyStatement({
+            resources: [ dynamoDbTable.tableArn ],
+            actions: [ '*' ]
+        }));
         //
         // fn.addToRolePolicy(new PolicyStatement({
         //     resources: [ `${bucket.bucketArn}/*` ],

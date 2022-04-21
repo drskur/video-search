@@ -1,13 +1,11 @@
-# Nuxt 3 Minimal Starter
-
-We recommend to look at the [documentation](https://v3.nuxtjs.org).
+# Nuxt 3 Demo App
 
 ## Setup
 
 Make sure to install the dependencies
 
 ```bash
-yarn install
+npm install
 ```
 
 ## Development
@@ -15,15 +13,13 @@ yarn install
 Start the development server on http://localhost:3000
 
 ```bash
-yarn dev
+npm run dev
 ```
 
 ## Production
 
-Build the application for production:
+Build and make distro the application for production:
 
 ```bash
-yarn build
+make
 ```
-
-Checkout the [deployment documentation](https://v3.nuxtjs.org/docs/deployment).

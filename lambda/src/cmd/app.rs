@@ -27,14 +27,15 @@ async fn main() -> Result<(), LambdaError> {
             .wrap(auth)
             .wrap(Logger::default())
             .service(lib::handlers::index::handler)
-            .service(lib::handlers::video_new::handler)
+            .service(lib::handlers::video_detail::handler)
+            .service(lib::handlers::video_list_api::handler)
     };
 
     if is_running_on_lambda() {
         run_actix_on_lambda(factory).await?;
     } else {
         HttpServer::new(factory)
-            .bind("127.0.0.1:8080")?
+            .bind("127.0.0.1:3000")?
             .run()
             .await?;
     }
