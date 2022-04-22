@@ -20,7 +20,7 @@
                         {% for video in videos %}
                             <li class="relative">
                                 <div class="group block w-full aspect-w-10 aspect-h-7 rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-gray-100 focus-within:ring-indigo-500 overflow-hidden">
-                                    <img src="{{video.thumbnail_key|content_url}}" alt="{{video.title}}" class="object-cover pointer-events-none group-hover:opacity-75">
+                                    <img src="{{video.thumbnail_key|content_url_opt}}" alt="{{video.title}}" class="object-cover pointer-events-none group-hover:opacity-75">
                                     <a href="/video/{{video.id}}" class="absolute inset-0 focus:outline-none">
                                         <span class="sr-only">View details for {{video.title}}</span>
                                     </a>

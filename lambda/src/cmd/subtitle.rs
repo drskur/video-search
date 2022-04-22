@@ -1,7 +1,9 @@
 use aws_lambda_events::event::sqs::SqsEvent;
 use aws_sdk_dynamodb::model::AttributeValue;
 use aws_sdk_s3::types::ByteStream;
+use itertools::Itertools;
 use lambda_runtime::{Error, service_fn, LambdaEvent};
+use serde_dynamo::{from_attribute_value, to_attribute_value};
 use lib::subtitle::{Subtitle, SubtitleQueueMessage};
 
 #[tokio::main]
@@ -79,15 +81,31 @@ async fn put_object(client: &aws_sdk_s3::Client, bucket: &str, key: &str, conten
 }
 
 async fn update_subtitle(client: &aws_sdk_dynamodb::Client, table_name: &str, id: &str, lang: &str) -> Result<(), Error> {
-    client.update_item()
+    let item_output = client.get_item()
         .table_name(table_name)
         .key("id", AttributeValue::S(id.to_owned()))
-        .update_expression("SET #subtitles = list_append(if_not_exists(#subtitles, :empty_list), :lang)")
-        .expression_attribute_names("#subtitles", "subtitles")
-        .expression_attribute_values(":lang", AttributeValue::L(vec![AttributeValue::S(lang.to_owned())]))
-        .expression_attribute_values(":empty_list", AttributeValue::L(vec![]))
         .send()
         .await?;
+
+    if let Some(item) = item_output.item {
+
+        let subtitles = if let Some(v) = item.get("subtitles") {
+            let mut ss: Vec<String> = from_attribute_value(v.to_owned()).unwrap();
+            ss.push(lang.to_string());
+
+            ss.into_iter().unique().collect()
+        } else {
+            vec![lang.to_string()]
+        };
+
+        client.update_item()
+            .table_name(table_name)
+            .key("id", AttributeValue::S(id.to_owned()))
+            .update_expression("SET subtitles = :subtitles")
+            .expression_attribute_values(":subtitles", to_attribute_value(subtitles).unwrap())
+            .send()
+            .await?;
+    }
 
     Ok(())
 }

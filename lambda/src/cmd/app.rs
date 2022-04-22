@@ -29,6 +29,7 @@ async fn main() -> Result<(), LambdaError> {
             .service(lib::handlers::index::handler)
             .service(lib::handlers::video_detail::handler)
             .service(lib::handlers::video_list_api::handler)
+            .service(lib::handlers::add_subtitle::handler)
     };
 
     if is_running_on_lambda() {

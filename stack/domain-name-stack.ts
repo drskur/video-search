@@ -4,7 +4,13 @@ import {DomainName} from "aws-cdk-lib/aws-apigateway";
 import {Certificate} from "aws-cdk-lib/aws-certificatemanager";
 import {ARecord, HostedZone, IHostedZone} from "aws-cdk-lib/aws-route53";
 import {IBucket} from "aws-cdk-lib/aws-s3";
-import {Distribution, OriginAccessIdentity} from "aws-cdk-lib/aws-cloudfront";
+import {
+    AllowedMethods, CachedMethods,
+    Distribution,
+    OriginAccessIdentity,
+    OriginRequestPolicy,
+    ResponseHeadersPolicy
+} from "aws-cdk-lib/aws-cloudfront";
 import {S3Origin} from "aws-cdk-lib/aws-cloudfront-origins";
 import {CanonicalUserPrincipal, PolicyStatement} from "aws-cdk-lib/aws-iam";
 
@@ -45,7 +51,11 @@ export class DomainNameStack extends Stack {
             defaultBehavior: {
                 origin: new S3Origin(bucket, {
                     originAccessIdentity: oai
-                })
+                }),
+                originRequestPolicy: OriginRequestPolicy.CORS_S3_ORIGIN,
+                responseHeadersPolicy: ResponseHeadersPolicy.CORS_ALLOW_ALL_ORIGINS_WITH_PREFLIGHT,
+                allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+                cachedMethods: CachedMethods.CACHE_GET_HEAD_OPTIONS
             },
         });
     }

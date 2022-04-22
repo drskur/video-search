@@ -39,14 +39,5 @@ pub async fn handler() -> actix_web::Result<HttpResponse> {
 }
 
 mod filters {
-    #[allow(dead_code)]
-    pub fn content_url(key: &Option<String>) -> ::askama::Result<String> {
-        let host = dotenv::var("CONTENT_HOST").expect("CONTENT_HOST must be set.");
-        if let Some(s) = key {
-            Ok(format!("//{}/{}", host, s))
-        } else {
-            // default thumbnail
-            Ok("".to_string())
-        }
-    }
+    pub use crate::content_url_opt;
 }

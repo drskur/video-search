@@ -48,6 +48,7 @@ askama = "0.11.1"
 uuid = { version = "0.8", features = ["serde", "v4"] }
 chrono = "0.4"
 url-escape = "0.1.1"
+itertools = "0.10.3"
 
 
 [build-dependencies]

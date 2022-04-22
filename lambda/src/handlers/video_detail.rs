@@ -9,13 +9,15 @@ use crate::store::video::{get_video, VideoItem};
 #[template(path = "video-detail.html")]
 #[allow(dead_code)]
 struct VideoDetailTemplate {
-    video: VideoItem
+    video: VideoItem,
+    content_host: String
 }
 
 impl VideoDetailTemplate {
     pub fn new(video: VideoItem) -> Self {
         VideoDetailTemplate {
-            video
+            video,
+            content_host: dotenv::var("CONTENT_HOST").expect("CONTENT_HOST must be set"),
         }
     }
 }
@@ -41,4 +43,8 @@ pub async fn handler(id: web::Path<String>) -> actix_web::Result<HttpResponse> {
 
         Ok(response)
     }
+}
+
+mod filters {
+    pub use crate::*;
 }
