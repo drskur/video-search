@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Index{% endblock %}
+{% block title %}Video Search{% endblock %}
 
 {% block content %}
 <div class="min-h-full">
@@ -37,12 +37,4 @@
         </main>
     </div>
 </div>
-
-<script>
-    const HOST = '{{content_host}}';
-
-    function contentUrl(key) {
-        return `${HOST}/${key}`;
-    }
-</script>
 {% endblock %}
