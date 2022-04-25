@@ -16,6 +16,7 @@ import {Bucket, IBucket} from "aws-cdk-lib/aws-s3";
 import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
 import {ITable} from "aws-cdk-lib/aws-dynamodb";
 import {IQueue} from "aws-cdk-lib/aws-sqs";
+import {ITopic, Topic} from "aws-cdk-lib/aws-sns";
 
 export class LambdaStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
@@ -27,25 +28,37 @@ export class LambdaStack extends Stack {
         const bucketName = aws_ssm.StringParameter.fromStringParameterName(this, "ContentBucketName", "/video-search/bucket-name/content");
         const bucket = aws_s3.Bucket.fromBucketName(this, "ContentBucket", bucketName.stringValue);
 
-        const queueArn = aws_ssm.StringParameter.fromStringParameterName(this, "SubtitleQueueArn", "/video-search/queue/subtitle");
-        const sqs = aws_sqs.Queue.fromQueueArn(this, "SubtitleQueue", queueArn.stringValue);
-
-        const kendraIndex = aws_ssm.StringParameter.fromStringParameterName(this, "Kendra", "/video-search/kendra/video");
+        const subtitleQueueArn = aws_ssm.StringParameter.fromStringParameterName(this, "SubtitleQueueArn", "/video-search/queue/subtitle");
+        const subtitleQueue = aws_sqs.Queue.fromQueueArn(this, "SubtitleQueue", subtitleQueueArn.stringValue);
 
         this.createTranscribeFunction(dynamodbTable, bucket);
 
         const rule = this.createTranscribeCompleteRule();
-        const transcribeCompleteFunction = this.createTranscribeCompleteFunction(dynamodbTable, sqs);
+        const transcribeCompleteFunction = this.createTranscribeCompleteFunction(dynamodbTable, subtitleQueue);
         rule.addTarget(new aws_events_targets.LambdaFunction(transcribeCompleteFunction as IFunction));
 
-        this.createSubtitleFunction(dynamodbTable, bucket, sqs, kendraIndex.stringValue);
+        const topic = this.createIndexTopic();
+        this.createSubtitleFunction(dynamodbTable, bucket, subtitleQueue, topic);
+    }
+
+    private createIndexTopic(): Topic {
+        const topic = new Topic(this, "IndexTopic", {
+            topicName: 'VideoSearchIndexJob'
+        });
+
+        new aws_ssm.StringParameter(this, "IndexTopic-Param", {
+            parameterName: '/video-search/topic/index',
+            stringValue: topic.topicArn
+        });
+
+        return topic;
     }
 
     private createSubtitleFunction(
         dynamoDbTable: ITable,
         bucket: IBucket,
-        sqs: IQueue,
-        kendraIndex: string,
+        subtitleQueue: IQueue,
+        topic: ITopic
     ): aws_lambda.Function {
         const fn = new aws_lambda.Function(this, "SubtitleFunction", {
             functionName: `${this.stackName}-Subtitle`,
@@ -57,11 +70,11 @@ export class LambdaStack extends Stack {
             environment: {
                 DYNAMODB_TABLE_NAME: dynamoDbTable.tableName,
                 BUCKET_NAME: bucket.bucketName,
-                KENDRA_INDEX: kendraIndex
+                TOPIC_ARN: topic.topicArn
             }
         });
 
-        fn.addEventSource(new SqsEventSource(sqs, {
+        fn.addEventSource(new SqsEventSource(subtitleQueue, {
             batchSize: 1
         }));
 
@@ -78,14 +91,9 @@ export class LambdaStack extends Stack {
         fn.addToRolePolicy(new PolicyStatement({
             resources: [ '*' ],
             actions: [ 'translate:*' ],
-            effect: Effect.ALLOW
         }));
 
-        fn.addToRolePolicy(new PolicyStatement({
-            effect: Effect.ALLOW,
-            resources: [`arn:aws:kendra:${this.region}:${this.account}:index/${kendraIndex}`],
-            actions: ["kendra:*"],
-        }))
+        topic.grantPublish(fn);
 
         return fn;
     }

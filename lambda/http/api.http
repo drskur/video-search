@@ -1,9 +1,9 @@
-POST https://umbkrb0eng.execute-api.us-east-1.amazonaws.com/api/video/subtitle
+POST https://video-search.drskur.xyz/api/video/subtitle
 Content-Type: application/json
 Authorization: Basic ZHJza3VyOg==
 
 {
-  "video_id": "b7392c01-c218-461d-bcf5-725f85ee1b33",
+  "video_id": "fc247815-94f3-40d7-8cd2-f80007a04c14",
   "target_lang": "en"
 }
 

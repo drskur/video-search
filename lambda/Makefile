@@ -1,4 +1,4 @@
-all: app transcribe transcribe-complete subtitle dist
+all: app transcribe transcribe-complete subtitle kendra-index dist
 
 app:
 	cargo lambda build --release --bin app --target aarch64-unknown-linux-gnu
@@ -11,6 +11,9 @@ transcribe-complete:
 
 subtitle:
 	cargo lambda build --release --bin subtitle --target aarch64-unknown-linux-gnu
+
+kendra-index:
+	cargo lambda build --release --bin kendra-index --target aarch64-unknown-linux-gnu
 
 dist:
 	mkdir -p ../.dist

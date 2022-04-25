@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { VideoSearchStack } from '../stack/video-search-stack';
 import {KendraStack} from "../stack/kendra-stack";
 import * as dotenv from 'dotenv'
 import {DomainNameStack} from "../stack/domain-name-stack";

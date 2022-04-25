@@ -4,6 +4,7 @@ use aws_sdk_s3::types::ByteStream;
 use itertools::Itertools;
 use lambda_runtime::{Error, service_fn, LambdaEvent};
 use serde_dynamo::{from_attribute_value, to_attribute_value};
+use lib::index::IndexTopicMessage;
 use lib::subtitle::{Subtitle, SubtitleQueueMessage};
 
 #[tokio::main]
@@ -22,12 +23,15 @@ async fn handler(event: LambdaEvent<SqsEvent>) -> Result<(), Error> {
         .expect("DYNAMODB_TABLE_NAME must be set.");
     let bucket_name = dotenv::var("BUCKET_NAME")
         .expect("BUCKET_NAME must be set.");
+    let topic_arn = dotenv::var("TOPIC_ARN")
+        .expect("TOPIC_ARN must be set.");
     let shared_config = aws_config::from_env()
         .load().await;
 
     let dynamodb = aws_sdk_dynamodb::Client::new(&shared_config);
     let s3 = aws_sdk_s3::Client::new(&shared_config);
     let translate = aws_sdk_translate::Client::new(&shared_config);
+    let sns = aws_sdk_sns::Client::new(&shared_config);
 
     for record in event.payload.records {
         let body = record.body.expect("message body must be exist");
@@ -46,9 +50,14 @@ async fn handler(event: LambdaEvent<SqsEvent>) -> Result<(), Error> {
             msg.content_language
         };
 
-        let vtt = subtitle.vtt().await;
+        let vtt = subtitle.vtt();
         put_object(&s3, &bucket_name, &format!("subtitle/{}/{}.vtt", msg.video_id, lang), vtt.as_bytes()).await.unwrap();
         update_subtitle(&dynamodb, &table_name, &msg.video_id, &lang).await.unwrap();
+        publish_message_to_topic(&sns, &topic_arn, &IndexTopicMessage{
+            video_id: msg.video_id.clone(),
+            lang,
+            body: subtitle.index_body()
+        }).await.unwrap();
     }
 
     Ok(())
@@ -106,6 +115,17 @@ async fn update_subtitle(client: &aws_sdk_dynamodb::Client, table_name: &str, id
             .send()
             .await?;
     }
+
+    Ok(())
+}
+
+async fn publish_message_to_topic(client: &aws_sdk_sns::Client, topic_arn: &str, message: &IndexTopicMessage) -> Result<(), Error> {
+
+    client.publish()
+        .topic_arn(topic_arn)
+        .message(serde_json::to_string(message).unwrap())
+        .send()
+        .await?;
 
     Ok(())
 }

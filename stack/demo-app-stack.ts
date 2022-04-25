@@ -7,7 +7,7 @@ import {IBucket} from "aws-cdk-lib/aws-s3";
 import {Source} from "aws-cdk-lib/aws-s3-deployment";
 import { ITable } from "aws-cdk-lib/aws-dynamodb";
 import {Vpc} from "aws-cdk-lib/aws-ec2";
-import {PolicyStatement} from "aws-cdk-lib/aws-iam";
+import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
 import {IQueue} from "aws-cdk-lib/aws-sqs";
 
 export class DemoAppStack extends Stack {
@@ -25,7 +25,9 @@ export class DemoAppStack extends Stack {
         const queueArn = aws_ssm.StringParameter.fromStringParameterName(this, "SubtitleQueueArn", "/video-search/queue/subtitle");
         const sqs = aws_sqs.Queue.fromQueueArn(this, "SubtitleQueue", queueArn.stringValue);
 
-        const demoFunction = this.createDemoAppFunction(bucket, contentDomainName.stringValue, dynamodbTable, sqs);
+        const kendraIndex = aws_ssm.StringParameter.fromStringParameterName(this, "Kendra", "/video-search/kendra/video");
+
+        const demoFunction = this.createDemoAppFunction(bucket, contentDomainName.stringValue, dynamodbTable, sqs, kendraIndex.stringValue);
         this.createDemoApi(demoFunction);
     }
 
@@ -35,7 +37,7 @@ export class DemoAppStack extends Stack {
         });
     }
 
-    private createDemoAppFunction(bucket: IBucket, contentHostName: string, dynamoDbTable: ITable, sqs: IQueue): aws_lambda.Function {
+    private createDemoAppFunction(bucket: IBucket, contentHostName: string, dynamoDbTable: ITable, sqs: IQueue, kendraIndex: string): aws_lambda.Function {
 
         const fn = new aws_lambda.Function(this, "DemoAppFunction", {
             functionName: `${this.stackName}-Demo`,
@@ -47,7 +49,8 @@ export class DemoAppStack extends Stack {
             environment: {
                 CONTENT_HOST: contentHostName,
                 DYNAMODB_TABLE_NAME: dynamoDbTable.tableName,
-                QUEUE_URL: sqs.queueUrl
+                QUEUE_URL: sqs.queueUrl,
+                KENDRA_INDEX: kendraIndex
             },
         });
 
@@ -61,23 +64,16 @@ export class DemoAppStack extends Stack {
             actions: [ '*' ]
         }))
 
+        fn.addToRolePolicy(new PolicyStatement({
+            resources: [`arn:aws:kendra:${this.region}:${this.account}:index/${kendraIndex}`],
+            actions: [ "kendra:*" ],
+        }))
+
         //
         // fn.addToRolePolicy(new PolicyStatement({
         //     resources: [ `${bucket.bucketArn}/*` ],
         //     actions: [ '*' ],
         // }));
-        //
-        // fn.addToRolePolicy(new PolicyStatement({
-        //     resources: [ '*' ],
-        //     actions: [ 'translate:*' ],
-        //     effect: Effect.ALLOW
-        // }));
-        //
-        // fn.addToRolePolicy(new PolicyStatement({
-        //     effect: Effect.ALLOW,
-        //     resources: [`arn:aws:kendra:${this.region}:${this.account}:index/${kendraIndex}`],
-        //     actions: ["kendra:*"],
-        // }))
 
         return fn;
     }

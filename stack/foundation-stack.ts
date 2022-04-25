@@ -1,8 +1,7 @@
-import {aws_cloudfront, aws_dynamodb, aws_sqs, aws_ssm, CfnOutput, Stack, StackProps} from "aws-cdk-lib";
+import {aws_dynamodb, aws_sqs, aws_ssm, Stack, StackProps} from "aws-cdk-lib";
 import {Construct} from "constructs";
 import {Bucket} from "aws-cdk-lib/aws-s3";
-import {Distribution} from "aws-cdk-lib/aws-cloudfront";
-import {S3Origin} from "aws-cdk-lib/aws-cloudfront-origins";
+import {BillingMode} from "aws-cdk-lib/aws-dynamodb";
 
 export class FoundationStack extends Stack {
 
@@ -21,7 +20,7 @@ export class FoundationStack extends Stack {
             stringValue: db.tableName
         });
 
-        const queue = this.createSQS();
+        const queue = this.createSubtitleQueue();
         new aws_ssm.StringParameter(this, "SQS-Video-Param", {
             parameterName: '/video-search/queue/subtitle',
             stringValue: queue.queueArn
@@ -41,12 +40,11 @@ export class FoundationStack extends Stack {
                 name: 'id',
                 type: aws_dynamodb.AttributeType.STRING,
             },
-            readCapacity: 2,
-            writeCapacity: 2,
+            billingMode: BillingMode.PAY_PER_REQUEST
         });
     }
 
-    private createSQS(): aws_sqs.Queue {
+    private createSubtitleQueue(): aws_sqs.Queue {
 
         const dlq = new aws_sqs.Queue(this, "SubtitleDLQ", {
             queueName: 'video-search-subtitle-dlq'

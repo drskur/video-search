@@ -166,7 +166,7 @@ impl Subtitle {
         Ok(())
     }
 
-    pub async fn vtt(&self) -> String {
+    pub fn vtt(&self) -> String {
         let mut vtt = String::new();
 
         vtt.push_str("WEBVTT\n\n");
@@ -180,6 +180,17 @@ impl Subtitle {
         }
 
         vtt
+    }
+
+    pub fn index_body(&self) -> String {
+        let mut body = String::new();
+        for (_i, item) in self.items.iter().enumerate() {
+            body.push_str(&format!("{} {}\n",
+                                   &Self::time_format(item.start_time, "."),
+                                   &item.content));
+        }
+
+        body
     }
 
     fn time_format(t: f32, d: &str) -> String {
