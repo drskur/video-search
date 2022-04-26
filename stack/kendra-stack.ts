@@ -2,7 +2,7 @@ import {aws_dynamodb, aws_lambda, aws_sns, aws_ssm, Duration, Stack, StackProps}
 import {Construct} from "constructs";
 import {Effect, PolicyStatement, Role, ServicePrincipal} from "aws-cdk-lib/aws-iam";
 import {CfnIndex} from "aws-cdk-lib/aws-kendra";
-import {ITopic, Topic} from "aws-cdk-lib/aws-sns";
+import {ITopic} from "aws-cdk-lib/aws-sns";
 import {ITable} from "aws-cdk-lib/aws-dynamodb";
 import {Architecture, Code, Runtime} from "aws-cdk-lib/aws-lambda";
 import {SnsEventSource} from "aws-cdk-lib/aws-lambda-event-sources";
@@ -69,9 +69,9 @@ export class KendraStack extends Stack {
             type: 'STRING_VALUE',
             search: {
                 displayable: false,
-                facetable: true,
+                facetable: false,
                 searchable: false,
-                sortable: false,
+                sortable: true,
             },
         }];
 

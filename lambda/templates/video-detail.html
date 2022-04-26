@@ -7,14 +7,17 @@
     {% include "nav.html" %}
 
     <div>
-        <main>
+        <main x-data="{ open: false, langs: langs(), modal: false, currentLang: '', q: '', suggestions: [], showSuggestions: false }">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="px-4 py-4 sm:px-0">
                     <video preload="metadata" controls
+                           id="video"
                            class="w-full aspect-video" crossorigin="anonymous">
                         <source src="{{video.video_key|content_url}}#t=0.001" type="video/mp4">
                         {% for lang in video.subtitles %}
-                            <track label="{{lang}}" kind="subtitles" srclang="{{lang}}" src="https://{{content_host}}/subtitle/{{video.id}}/{{lang}}.vtt" c>
+                            <track label="{{lang}}" kind="subtitles" srclang="{{lang}}"
+                                   @cuechange="currentLang = '{{lang}}'"
+                                   src="https://{{content_host}}/subtitle/{{video.id}}/{{lang}}.vtt">
                         {% endfor %}
                     </video>
                 </div>
@@ -30,7 +33,7 @@
                                         <p class="text-sm text-gray-500">Subtitles: {{video.subtitles|join(", ")}}</p>
                                     </div>
                                     <div>
-                                        <div class="relative" x-data="{ open: false, langs: langs(), modal: false }">
+                                        <div class="relative">
                                             <button type="button"
                                                     @click="open = !open"
                                                     @click.away="open = false"
@@ -108,6 +111,47 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="bg-white sm:rounded-lg mt-2">
+                        <div class="py-2">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900">Search the moment</h3>
+                            <div class="max-w-xl text-sm text-gray-500">
+                                <p>Search the moment from this video.</p>
+                            </div>
+                            <form class="mt-2 sm:flex sm:items-center"
+                                  @submit.prevent="searchQuery(q, currentLang).then(data => { suggestions = data; showSuggestions = true; })">
+                                <div class="w-full sm:max-w-xs">
+                                    <label for="query" class="sr-only">Query</label>
+                                    <input type="text"
+                                           id="query"
+                                           x-model="q"
+                                           :disabled="currentLang === ''"
+                                           class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md disabled:opacity-50"
+                                           :placeholder="searchPlaceholderText(currentLang)">
+                                </div>
+                                <button type="submit"
+                                        :disabled="currentLang === ''"
+                                        class="mt-3 w-full inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
+                                        x-text="searchButtonText(currentLang)"></button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="bg-white sm:rounded-lg mt-2" x-show="showSuggestions">
+                        <div class="py-2">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900">Suggestions</h3>
+                            <div class="mt-2">
+                                <template x-for="item in suggestions">
+                                    <dl class="flex gap-2">
+                                        <dt class="text-lg text-gray-600" x-text="msStr(timeStrToSeconds(item[0]))"></dt>
+                                        <dd :class="item[0] ? 'hover:underline cursor-pointer' : ''"
+                                            @click="setVideoTime(timeStrToSeconds(item[0]))"
+                                            x-text="item[1]"></dd>
+                                    </dl>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -146,6 +190,81 @@
                 target_lang: lang
             })
         });
+    }
+
+    function searchPlaceholderText(lang) {
+        const words = {
+            '': 'Subtitle is off',
+            'en': 'What do you search?',
+            'ko': '무엇을 검색할까요?',
+            'ja': '何を検索しますか？',
+            'de': 'Was suchst du?',
+            'fr': 'Qu\'est ce que tu cherches?',
+            'hi': 'आप क्या खोजते हैं?',
+            'es': '¿Qué buscas?',
+            'it': 'Cosa cerchi?'
+        };
+
+        return words[lang];
+    }
+
+    function searchButtonText(lang) {
+        const words = {
+            '': 'Disabled',
+            'en': 'Search',
+            'ko': '검색',
+            'ja': '探す',
+            'de': 'Suche',
+            'fr': 'Recherche',
+            'hi': 'खोज',
+            'es': 'Búsqueda',
+            'it': 'Ricerca'
+        };
+
+        return words[lang];
+    }
+
+    async function searchQuery(query, lang) {
+
+        const res = await fetch(`/api/video/search?q=${query}&lang=${lang}&video_id={{video.id}}`);
+        const json = await res.json();
+        const item = json[0];
+
+        const timePattern = /^\d{2}:\d{2}:\d{2}/;
+
+        if (item) {
+            const {body} = item;
+            const lines = body.split('\n');
+
+            return lines.map(l => {
+                if (timePattern.test(l)) {
+                    return l.split(/ (.*)/s);
+                }
+
+                return ['', l];
+            });
+        }
+
+        return [];
+    }
+
+    function timeStrToSeconds(time) {
+        const hh = time.substring(0, 2);
+        const mm = time.substring(3, 5);
+        const ss = time.substring(6, 8);
+        return parseInt(hh) * 3600 + parseInt(mm) * 60 + parseInt(ss);
+    }
+
+    function msStr(seconds) {
+        const m = parseInt(seconds / 60);
+        const s = seconds - (m * 60);
+
+        return `${m}:${s.toString().padStart(2, '0')}`;
+    }
+
+    function setVideoTime(seconds) {
+        const video = document.getElementById('video');
+        video.currentTime = seconds;
     }
 
 </script>

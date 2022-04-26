@@ -5,7 +5,7 @@ edition = "2021"
 
 [[bin]]
 name = "transcribe-complete"
-path = "src/cmd/transcribe-complete.rs"
+path = "src/cmd/transcribe_complete.rs"
 
 [[bin]]
 name = "transcribe"
@@ -21,7 +21,7 @@ path = "src/cmd/app.rs"
 
 [[bin]]
 name = "kendra-index"
-path = "src/cmd/kendra-index.rs"
+path = "src/cmd/kendra_index.rs"
 
 [[bin]]
 name = "tan"
