@@ -2,8 +2,9 @@ use actix_web::{HttpResponse, web};
 use actix_web::error::ErrorBadRequest;
 use actix_web::get;
 use anyhow::anyhow;
-use aws_sdk_kendra::model::{AttributeFilter, DocumentAttribute, DocumentAttributeValue, QueryResultItem};
-use serde::{Deserialize, Serialize};
+use aws_sdk_kendra::model::{AttributeFilter, DocumentAttribute, DocumentAttributeValue};
+use serde::{Deserialize};
+use crate::handlers::VideoSearchItem;
 
 #[derive(Deserialize)]
 pub struct VideoSearchRequest {
@@ -57,27 +58,4 @@ pub async fn handler(req: web::Query<VideoSearchRequest>) -> actix_web::Result<H
         .json(items);
 
     Ok(res)
-}
-
-#[derive(Serialize)]
-struct VideoSearchItem {
-    id: String,
-    title: String,
-    body: String,
-}
-
-impl TryFrom<QueryResultItem> for VideoSearchItem {
-    type Error = anyhow::Error;
-
-    fn try_from(value: QueryResultItem) -> Result<Self, Self::Error> {
-        let id = value.document_id.ok_or(anyhow!("document_id must exist"))?;
-        let title = value.document_title.and_then(|t| t.text).ok_or(anyhow!("document_title must exist"))?;
-        let body = value.document_excerpt.and_then(|t| t.text).ok_or(anyhow!("document_excerpt must exist"))?;
-
-        Ok(VideoSearchItem {
-            id,
-            title,
-            body
-        })
-    }
 }

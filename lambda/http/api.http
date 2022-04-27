@@ -9,7 +9,7 @@ Authorization: Basic ZHJza3VyOg==
 
 ###
 
-GET https://video-search.drskur.xyz/api/video/search?q=소금
+GET https://video-search.drskur.xyz/api/video/search?q=만든 사과 디저트&lang=ko
 Content-Type: application/json
 Authorization: Basic ZHJza3VyOg==
 

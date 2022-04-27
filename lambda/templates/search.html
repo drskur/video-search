@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Video Search{% endblock %}
+
+{% block content %}
+<div class="min-h-full">
+    {% include "nav.html" %}
+
+    <main class="max-w-2xl mx-auto pt-16 pb-24 px-4 sm:px-6 lg:max-w-7xl lg:px-8" x-data="search">
+        <h1 x-text="`Search Result: ${query}`"
+            class="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-4xl"></h1>
+
+        <div class="mt-12">
+            <section aria-labelledby="video-heading" class="">
+                <h2 id="video-heading" class="sr-only">Search Result Items</h2>
+
+                <ul role="list" class="border-t border-b border-gray-200 divide-y divide-gray-200">
+
+                    {% for video in videos %}
+                    <li class="flex py-6 sm:py-10">
+                        <div class="flex-shrink-0">
+                            <img src="https://tailwindui.com/img/ecommerce-images/shopping-cart-page-01-product-01.jpg" alt="Front of men's Basic Tee in sienna." class="w-24 h-24 rounded-md object-center object-cover sm:w-48 sm:h-48">
+                        </div>
+
+                        <div class="ml-4 flex-1 flex flex-col justify-between sm:ml-6">
+                            <div class="relative pr-9sm:pr-0">
+                                {% for line in video.body %}
+                                    <dl class="flex gap-2">
+                                        <dt class="text-lg text-gray-600">{{line.time|second_format}}</dt>
+                                        <dd></dd>
+                                        <dd :class="{{line.time}} > 0 ? 'hover:underline cursor-pointer' : ''"
+                                            @click="setVideoTime({{line.time}})">
+                                            {{line.text}}
+                                        </dd>
+                                    </dl>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </section>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        const params = new URLSearchParams(location.search);
+
+        Alpine.data('search', () => ({
+            query: params.get('q') || ''
+        }))
+    })
+</script>
+{% endblock %}

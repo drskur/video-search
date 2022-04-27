@@ -165,18 +165,7 @@
     function langs() {
         const exist = '{{video.subtitles|join("|")}}'.split('|');
 
-        const available = [
-            ['English', 'en'],
-            ['French', 'fr'],
-            ['German', 'de'],
-            ['Hindi', 'hi'],
-            ['Italian', 'it'],
-            ['Japanese', 'ja'],
-            ['Korean', 'ko'],
-            ['Spanish', 'es']
-        ];
-
-        return available.filter(([_, l]) => exist.indexOf(l) === -1);
+        return availableLanguages.filter(([_, l]) => exist.indexOf(l) === -1);
     }
 
     function requestSubtitle(lang) {
