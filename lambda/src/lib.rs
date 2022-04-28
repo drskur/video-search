@@ -20,6 +20,11 @@ pub fn content_url(key: &str) -> ::askama::Result<String> {
 }
 
 pub fn second_format(seconds: &u32) -> ::askama::Result<String> {
+
+    if seconds == &0 {
+        return Ok("".to_string());
+    }
+
     let mm = seconds / 60;
     let ss = seconds - (mm * 60);
 

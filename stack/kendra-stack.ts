@@ -64,16 +64,38 @@ export class KendraStack extends Stack {
             roleArn: role.roleArn,
         });
 
-        index.documentMetadataConfigurations = [{
-            name: 'video_id',
-            type: 'STRING_VALUE',
-            search: {
-                displayable: false,
-                facetable: false,
-                searchable: false,
-                sortable: true,
+        index.documentMetadataConfigurations = [
+            {
+                name: 'video_id',
+                type: 'STRING_VALUE',
+                search: {
+                    displayable: false,
+                    facetable: false,
+                    searchable: false,
+                    sortable: true,
+                },
             },
-        }];
+            {
+                name: 'video_key',
+                type: 'STRING_VALUE',
+                search: {
+                    displayable: true,
+                    facetable: false,
+                    searchable: false,
+                    sortable: false,
+                },
+            },
+            {
+                name: 'thumbnail_key',
+                type: 'STRING_VALUE',
+                search: {
+                    displayable: true,
+                    facetable: false,
+                    searchable: false,
+                    sortable: true,
+                },
+            }
+        ];
 
         new aws_ssm.StringParameter(this, "Kendra-Param", {
            parameterName: '/video-search/kendra/video',

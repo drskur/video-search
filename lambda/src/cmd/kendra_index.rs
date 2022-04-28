@@ -41,6 +41,14 @@ async fn handler(event: LambdaEvent<SnsEvent>) -> Result<(), Error> {
                     .key("video_id")
                     .value(DocumentAttributeValue::builder().string_value(&msg.video_id).build())
                     .build())
+                .attributes(DocumentAttribute::builder()
+                    .key("video_key")
+                    .value(DocumentAttributeValue::builder().string_value(&item.video_key).build())
+                    .build())
+                .attributes(DocumentAttribute::builder()
+                    .key("thumbnail_key")
+                    .value(DocumentAttributeValue::builder().string_value(&item.thumbnail_key.unwrap_or("".to_string())).build())
+                    .build())
                 .blob(Blob::new(msg.body.as_bytes()))
                 .build();
 

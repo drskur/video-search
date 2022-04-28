@@ -13,7 +13,7 @@
                     <video preload="metadata" controls
                            id="video"
                            class="w-full aspect-video" crossorigin="anonymous">
-                        <source src="{{video.video_key|content_url}}#t=0.001" type="video/mp4">
+                        <source src="{{video.video_key|content_url}}#t={{timing}}" type="video/mp4">
                         {% for lang in video.subtitles %}
                             <track label="{{lang}}" kind="subtitles" srclang="{{lang}}"
                                    @cuechange="currentLang = '{{lang}}'"

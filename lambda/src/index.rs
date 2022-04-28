@@ -4,5 +4,5 @@ use serde::{Deserialize, Serialize};
 pub struct IndexTopicMessage {
     pub video_id: String,
     pub lang: String,
-    pub body: String
+    pub body: String,
 }

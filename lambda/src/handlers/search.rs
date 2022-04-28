@@ -49,6 +49,8 @@ pub async fn handler(req: web::Query<SearchRequest>) -> actix_web::Result<HttpRe
         .index_id(&kendra_index)
         .query_text(&req.query)
         .attribute_filter(filter)
+        .requested_document_attributes("video_key")
+        .requested_document_attributes("thumbnail_key")
         .page_size(10)
         .send()
         .await
@@ -63,6 +65,8 @@ pub async fn handler(req: web::Query<SearchRequest>) -> actix_web::Result<HttpRe
         .map(|r| r.unwrap())
         .collect::<Vec<_>>();
 
+    println!("{:?}", items);
+
     let html = SearchTemplate::new(items)
         .render()
         .map_err(|e| ErrorInternalServerError(e))?;
@@ -76,4 +80,11 @@ pub async fn handler(req: web::Query<SearchRequest>) -> actix_web::Result<HttpRe
 
 mod filters {
     pub use crate::second_format;
+    pub use crate::content_url_opt;
 }
+
+// {#% for lang in video.subtitles %}
+// <track label="{{lang}}" kind="subtitles" srclang="{{lang}}"
+// @cuechange="currentLang = '{{lang}}'"
+// src="https://{{content_host}}/subtitle/{{video.id}}/{{lang}}.vtt">
+// {#% endfor %}
