@@ -27,7 +27,10 @@ export class DemoAppStack extends Stack {
 
         const kendraIndex = aws_ssm.StringParameter.fromStringParameterName(this, "Kendra", "/video-search/kendra/video");
 
-        const demoFunction = this.createDemoAppFunction(bucket, contentDomainName.stringValue, dynamodbTable, sqs, kendraIndex.stringValue);
+        const tantivySearchFunctionName = aws_ssm.StringParameter.fromStringParameterName(this, "TantivySearchFunction-Param", "/video-search/function/tantivy-search");
+        const tantivySearchFunction = aws_lambda.Function.fromFunctionName(this, "TantivySearchFunction", tantivySearchFunctionName.stringValue);
+
+        const demoFunction = this.createDemoAppFunction(bucket, contentDomainName.stringValue, dynamodbTable, sqs, kendraIndex.stringValue, tantivySearchFunction);
         this.createDemoApi(demoFunction);
     }
 
@@ -37,7 +40,13 @@ export class DemoAppStack extends Stack {
         });
     }
 
-    private createDemoAppFunction(bucket: IBucket, contentHostName: string, dynamoDbTable: ITable, sqs: IQueue, kendraIndex: string): aws_lambda.Function {
+    private createDemoAppFunction(
+        bucket: IBucket,
+        contentHostName: string,
+        dynamoDbTable: ITable,
+        sqs: IQueue,
+        kendraIndex: string,
+        tantivySearchFunction: IFunction): aws_lambda.Function {
 
         const fn = new aws_lambda.Function(this, "DemoAppFunction", {
             functionName: `${this.stackName}-Demo`,
@@ -50,7 +59,8 @@ export class DemoAppStack extends Stack {
                 CONTENT_HOST: contentHostName,
                 DYNAMODB_TABLE_NAME: dynamoDbTable.tableName,
                 QUEUE_URL: sqs.queueUrl,
-                KENDRA_INDEX: kendraIndex
+                KENDRA_INDEX: kendraIndex,
+                TANTIVY_SEARCH_FUNCTION_NAME: tantivySearchFunction.functionName
             },
         });
 
@@ -69,11 +79,7 @@ export class DemoAppStack extends Stack {
             actions: [ "kendra:*" ],
         }))
 
-        //
-        // fn.addToRolePolicy(new PolicyStatement({
-        //     resources: [ `${bucket.bucketArn}/*` ],
-        //     actions: [ '*' ],
-        // }));
+        tantivySearchFunction.grantInvoke(fn);
 
         return fn;
     }

@@ -1,10 +1,9 @@
 use actix_web::{HttpResponse, web};
-use actix_web::error::ErrorBadRequest;
+use actix_web::error::{ ErrorInternalServerError};
 use actix_web::get;
-use anyhow::anyhow;
-use aws_sdk_kendra::model::{AttributeFilter, DocumentAttribute, DocumentAttributeValue};
+use aws_sdk_lambda::types::Blob;
 use serde::{Deserialize};
-use crate::handlers::VideoSearchItem;
+use serde_json::{json, Value};
 
 #[derive(Deserialize)]
 pub struct VideoSearchRequest {
@@ -17,45 +16,33 @@ pub struct VideoSearchRequest {
 #[get("/api/video/search")]
 pub async fn handler(req: web::Query<VideoSearchRequest>) -> actix_web::Result<HttpResponse> {
 
-    let kendra_index = dotenv::var("KENDRA_INDEX")
-        .expect("QUEUE_URL must be set.");
+    let tantivy_function_name = dotenv::var("TANTIVY_SEARCH_FUNCTION_NAME")
+        .expect("TANTIVY_SEARCH_FUNCTION_NAME must be set.");
     let shared_config = aws_config::from_env().load().await;
-    let kendra = aws_sdk_kendra::Client::new(&shared_config);
 
-    let mut filter = AttributeFilter::builder()
-        .and_all_filters(
-            AttributeFilter::builder()
-                .equals_to(DocumentAttribute::builder().key("_language_code").value(DocumentAttributeValue::builder().string_value(&req.lang).build()).build())
-                .build()
-        );
+    let lambda = aws_sdk_lambda::Client::new(&shared_config);
 
-    if let Some(video_id) = req.video_id.clone() {
-        filter = filter.and_all_filters(
-            AttributeFilter::builder()
-                .equals_to(DocumentAttribute::builder().key("video_id").value(DocumentAttributeValue::builder().string_value(video_id).build()).build())
-                .build()
-        )
+    let mut query = req.query.clone();
+    if let Some(video_id) = req.video_id.as_ref() {
+        query.push_str(" AND ");
+        query.push_str(video_id);
     }
-
-    let output = kendra.query()
-        .index_id(&kendra_index)
-        .query_text(&req.query)
-        .attribute_filter(filter.build())
+    let payload = serde_json::to_string(&json!({
+        "lang": req.lang,
+        "query": query
+    })).unwrap();
+    let output = lambda.invoke()
+        .function_name(tantivy_function_name)
+        .payload(Blob::new(payload))
         .send()
         .await
-        .unwrap();
+        .map_err(ErrorInternalServerError)?;
 
-    println!("{:?}", output);
-
-    let items = output.result_items.ok_or(anyhow!("result_items must exist"))
-        .map_err(|e| ErrorBadRequest(e))?
-        .into_iter()
-        .map(VideoSearchItem::try_from)
-        .map(|r| r.unwrap())
-        .collect::<Vec<_>>();
+    let bytes = output.payload.unwrap().into_inner();
+    let value = serde_json::from_slice::<Value>(&bytes).unwrap();
 
     let res = HttpResponse::Ok()
-        .json(items);
+        .json(value);
 
     Ok(res)
 }

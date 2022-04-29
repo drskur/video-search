@@ -7,18 +7,17 @@
     {% include "nav.html" %}
 
     <div>
-        <main x-data="{ open: false, langs: langs(), modal: false, currentLang: '', q: '', suggestions: [], showSuggestions: false }">
+        <main x-data="{ open: false, modal: false, currentLang: 'en', q: '', suggestions: [], showSuggestions: false }">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="px-4 py-4 sm:px-0">
                     <video preload="metadata" controls
                            id="video"
                            class="w-full aspect-video" crossorigin="anonymous">
                         <source src="{{video.video_key|content_url}}#t={{timing}}" type="video/mp4">
-                        {% for lang in video.subtitles %}
-                            <track label="{{lang}}" kind="subtitles" srclang="{{lang}}"
-                                   @cuechange="currentLang = '{{lang}}'"
-                                   src="https://{{content_host}}/subtitle/{{video.id}}/{{lang}}.vtt">
-                        {% endfor %}
+                        <template x-for="al in langs()">
+                            <track :label="al[0]" kind="subtitles" :srclang="al[1]"
+                                   :src="`https://{{content_host}}/subtitle/{{video.id}}/${al[1]}.vtt`" />
+                        </template>
                     </video>
                 </div>
 
@@ -30,7 +29,7 @@
                                 <div class="flex">
                                     <div class="grow">
                                         <p class="text-sm text-gray-500">Audio: {{video.lang}}</p>
-                                        <p class="text-sm text-gray-500">Subtitles: {{video.subtitles|join(", ")}}</p>
+                                        <p class="text-sm text-gray-500" x-text="`Subtitles: ${langs().map(l => l[0]).join(', ')}`"></p>
                                     </div>
                                     <div>
                                         <div class="relative">
@@ -48,7 +47,7 @@
                                             <ul class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
                                                 x-show="open" x-transition.opacity
                                                 tabindex="-1" role="listbox" aria-labelledby="listbox-label">
-                                                <template x-for="lang in langs">
+                                                <template x-for="lang in requestLangs()">
                                                     <li class="text-gray-900 cursor-default select-none relative py-2 pl-8 pr-4 hover:text-white hover:bg-indigo-600"
                                                         @click="requestSubtitle(lang[1]).then(res => {if (res.status >= 400) { alert(res.statusText); } else { modal = true; }})"
                                                         role="option">
@@ -71,7 +70,6 @@
                                                      x-transition:leave-end="opacity-0">
                                                     <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
 
-                                                    <!-- This element is to trick the browser into centering the modal contents. -->
                                                     <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
                                                     <div class="relative inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6"
@@ -119,19 +117,29 @@
                                 <p>Search the moment from this video.</p>
                             </div>
                             <form class="mt-2 sm:flex sm:items-center"
-                                  @submit.prevent="searchQuery(q, currentLang).then(data => { suggestions = data; showSuggestions = true; })">
-                                <div class="w-full sm:max-w-xs">
+                                  @submit.prevent="await searchQuery($data)">
+                                <div>
+                                    <label for="currentLanguage" class="sr-only">Language</label>
+                                    <select id="currentLanguage" name="lang"
+                                            x-model="currentLang"
+                                            class="block bg-gray-100 w-full pl-3 pr-10 py-2 text-base border-gray-300 sm:text-sm rounded-md">
+                                        <template x-for="al in langs()">
+                                            <option x-text="al[0]"
+                                                    :value="al[1]"
+                                                    :selected="al[1] === lang"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                                <div class="w-full sm:max-w-xs sm:ml-3">
                                     <label for="query" class="sr-only">Query</label>
                                     <input type="text"
                                            id="query"
                                            x-model="q"
-                                           :disabled="currentLang === ''"
-                                           class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md disabled:opacity-50"
+                                           class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
                                            :placeholder="searchPlaceholderText(currentLang)">
                                 </div>
                                 <button type="submit"
-                                        :disabled="currentLang === ''"
-                                        class="mt-3 w-full inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
+                                        class="mt-3 w-full inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                                         x-text="searchButtonText(currentLang)"></button>
                             </form>
                         </div>
@@ -143,10 +151,10 @@
                             <div class="mt-2">
                                 <template x-for="item in suggestions">
                                     <dl class="flex gap-2">
-                                        <dt class="text-lg text-gray-600" x-text="msStr(timeStrToSeconds(item[0]))"></dt>
-                                        <dd :class="item[0] ? 'hover:underline cursor-pointer' : ''"
-                                            @click="setVideoTime(timeStrToSeconds(item[0]))"
-                                            x-text="item[1]"></dd>
+                                        <dt class="text-lg text-gray-600" x-text="msStr(timeStrToSeconds(item.time))"></dt>
+                                        <dd class="hover:underline cursor-pointer"
+                                            @click="setVideoTime(timeStrToSeconds(item.time))"
+                                            x-text="item.body"></dd>
                                     </dl>
                                 </template>
                             </div>
@@ -162,10 +170,16 @@
 
     const videoId = '{{video.id}}';
 
-    function langs() {
+    function requestLangs() {
         const exist = '{{video.subtitles|join("|")}}'.split('|');
 
         return availableLanguages.filter(([_, l]) => exist.indexOf(l) === -1);
+    }
+
+    function langs() {
+        const exist = '{{video.subtitles|join("|")}}'.split('|');
+
+        return availableLanguages.filter(([_, l]) => exist.indexOf(l) !== -1);
     }
 
     function requestSubtitle(lang) {
@@ -213,28 +227,21 @@
         return words[lang];
     }
 
-    async function searchQuery(query, lang) {
+    async function searchQuery($data) {
 
-        const res = await fetch(`/api/video/search?q=${query}&lang=${lang}&video_id={{video.id}}`);
+        const { currentLang, q } = $data;
+
+        const res = await fetch(`/api/video/search?q=${q}&lang=${currentLang}&video_id={{video.id}}`);
         const json = await res.json();
-        const item = json[0];
 
-        const timePattern = /^\d{2}:\d{2}:\d{2}/;
+        const data = R.pipe(
+            R.map(str => JSON.parse(str)),
+            R.map(R.map(R.prop(0))),
+            R.sortBy(R.prop('time'))
+        )(json);
 
-        if (item) {
-            const {body} = item;
-            const lines = body.split('\n');
-
-            return lines.map(l => {
-                if (timePattern.test(l)) {
-                    return l.split(/ (.*)/s);
-                }
-
-                return ['', l];
-            });
-        }
-
-        return [];
+        $data.showSuggestions = true;
+        $data.suggestions = data;
     }
 
     function timeStrToSeconds(time) {
@@ -254,6 +261,10 @@
     function setVideoTime(seconds) {
         const video = document.getElementById('video');
         video.currentTime = seconds;
+
+        if (video.paused) {
+            video.paused = false;
+        }
     }
 
 </script>

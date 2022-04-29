@@ -24,8 +24,12 @@ name = "kendra-index"
 path = "src/cmd/kendra_index.rs"
 
 [[bin]]
-name = "tan"
-path = "src/cmd/tan.rs"
+name = "tantivy-index"
+path = "src/cmd/tantivy_index.rs"
+
+[[bin]]
+name = "tantivy-search"
+path = "src/cmd/tantivy_search.rs"
 
 [lib]
 name = "lib"
@@ -40,6 +44,7 @@ aws-sdk-dynamodb = "0.10"
 aws-sdk-s3 = "0.10"
 aws-sdk-sqs = "0.10"
 aws-sdk-sns = "0.10"
+aws-sdk-lambda = "0.10"
 dotenv = "0.15"
 lambda_runtime = "0.5.1"
 aws_lambda_events = "0.6.1"

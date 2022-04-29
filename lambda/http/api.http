@@ -3,17 +3,17 @@ Content-Type: application/json
 Authorization: Basic ZHJza3VyOg==
 
 {
-  "video_id": "ef67ddb1-720d-46bf-8f95-9c2c12f909f9",
+  "video_id": "fc247815-94f3-40d7-8cd2-f80007a04c14",
   "target_lang": "en"
 }
 
 ###
 
-GET https://video-search.drskur.xyz/api/video/search?q=만든 사과 디저트&lang=ko
+GET https://video-search.drskur.xyz/api/video/search?q=사과&lang=ko
 Content-Type: application/json
 Authorization: Basic ZHJza3VyOg==
 
 ###
-GET http://localhost:3000/api/video/search?q=두부 단백질&lang=ko&video_id=fc247815-94f3-40d7-8cd2-f80007a04c14
+GET http://localhost:3000/api/video/search?q=두부&lang=ko&video_id=fc247815-94f3-40d7-8cd2-f80007a04c14
 Content-Type: application/json
 Authorization: Basic ZHJza3VyOg==

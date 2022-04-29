@@ -51,7 +51,7 @@ export class KendraStack extends Stack {
         fn.addToRolePolicy(new PolicyStatement({
             resources: [ kendra.attrArn ],
             actions: [ "kendra:*" ],
-        }))
+        }));
 
         return fn;
     }

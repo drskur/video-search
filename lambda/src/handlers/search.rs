@@ -56,16 +56,12 @@ pub async fn handler(req: web::Query<SearchRequest>) -> actix_web::Result<HttpRe
         .await
         .unwrap();
 
-    println!("{:?}", output);
-
     let items = output.result_items.ok_or(anyhow!("result_items must exist"))
         .map_err(|e| ErrorBadRequest(e))?
         .into_iter()
         .map(VideoSearchItem::try_from)
         .map(|r| r.unwrap())
         .collect::<Vec<_>>();
-
-    println!("{:?}", items);
 
     let html = SearchTemplate::new(items)
         .render()
@@ -82,9 +78,3 @@ mod filters {
     pub use crate::second_format;
     pub use crate::content_url_opt;
 }
-
-// {#% for lang in video.subtitles %}
-// <track label="{{lang}}" kind="subtitles" srclang="{{lang}}"
-// @cuechange="currentLang = '{{lang}}'"
-// src="https://{{content_host}}/subtitle/{{video.id}}/{{lang}}.vtt">
-// {#% endfor %}

@@ -8,11 +8,11 @@ import {DevopsStack} from "../stack/devops-stack";
 import {FoundationStack} from "../stack/foundation-stack";
 import {LambdaStack} from "../stack/lambda-stack";
 import {DemoAppStack} from "../stack/demo-app-stack";
+import {TantivyStack} from "../stack/tantivy-stack";
 
 dotenv.config();
 
 const app = new cdk.App();
-
 
 new DomainNameStack(app, 'VideoSearchDomainNameStack');
 
@@ -26,5 +26,5 @@ new KendraStack(app, 'VideoSearchKendraStack');
 
 new DemoAppStack(app, 'VideoSearchDemoAppStack');
 
-// new VideoSearchStack(app, 'VideoSearchStack');
+new TantivyStack(app, 'VideoSearchTantivyStack');
 
