@@ -238,7 +238,6 @@
         const json = await res.json();
 
         const data = R.pipe(
-            R.map(str => JSON.parse(str)),
             R.map(R.map(R.prop(0))),
             R.ifElse(
                 data => data.length > 0,
