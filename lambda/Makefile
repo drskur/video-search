@@ -27,11 +27,17 @@ dist:
 
 codebuild:
 	cargo build --release
-	mkdir -p ../.dist
+	mkdir -p ../.dist/app
 	cp target/release/app ../.dist/app/bootstrap
+	mkdir -p ../.dist/transcribe
 	cp target/release/transcribe ../.dist/transcribe/bootstrap
+	mkdir -p ../.dist/transcribe-complete
 	cp target/release/transcribe-complete ../.dist/transcribe-complete/bootstrap
+	mkdir -p ../.dist/subtitle
 	cp target/release/subtitle ../.dist/subtitle/bootstrap
+	mkdir -p ../.dist/kendra-index
 	cp target/release/kendra-index ../.dist/kendra-index/bootstrap
+	mkdir -p ../.dist/tantivy-index
 	cp target/release/tantivy-index ../.dist/tantivy-index/bootstrap
+	mkdir -p ../.dist/tantivy-search
 	cp target/release/tantivy-search ../.dist/tantivy-search/bootstrap
