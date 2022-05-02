@@ -22,7 +22,7 @@ pub async fn handler(req: web::Query<VideoSearchRequest>) -> actix_web::Result<H
 
     let lambda = aws_sdk_lambda::Client::new(&shared_config);
 
-    let mut query = req.query.clone();
+    let mut query = format!("({})", req.query);
     if let Some(video_id) = req.video_id.as_ref() {
         query.push_str(" AND ");
         query.push_str(video_id);

@@ -157,6 +157,9 @@
                                             x-text="item.body"></dd>
                                     </dl>
                                 </template>
+                                <div x-show="suggestions.length === 0">
+                                    No result
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -237,7 +240,11 @@
         const data = R.pipe(
             R.map(str => JSON.parse(str)),
             R.map(R.map(R.prop(0))),
-            R.sortBy(R.prop('time'))
+            R.ifElse(
+                data => data.length > 0,
+                R.sortBy(R.prop('time')),
+                R.identity
+            )
         )(json);
 
         $data.showSuggestions = true;
@@ -263,7 +270,7 @@
         video.currentTime = seconds;
 
         if (video.paused) {
-            video.paused = false;
+            video.play();
         }
     }
 
