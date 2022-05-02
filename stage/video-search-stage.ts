@@ -34,7 +34,8 @@ export class VideoSearchStage extends Stage {
         });
 
         new DemoAppStack(this, 'VideoSearchDemoAppStack', {
-            stageName
+            stageName,
+            appDomainName: 'video-search'
         });
 
     }

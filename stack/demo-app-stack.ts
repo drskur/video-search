@@ -1,18 +1,22 @@
 import {
     aws_dynamodb,
-    aws_lambda,
+    aws_lambda, aws_route53,
     aws_sqs,
 } from "aws-cdk-lib";
 import {Construct} from "constructs";
 import {Architecture, Code, IFunction, Runtime} from "aws-cdk-lib/aws-lambda";
-import {HttpApi, } from "@aws-cdk/aws-apigatewayv2-alpha";
+import {HttpApi, DomainName, IDomainName} from "@aws-cdk/aws-apigatewayv2-alpha";
 import {HttpLambdaIntegration} from "@aws-cdk/aws-apigatewayv2-integrations-alpha";
 import { ITable } from "aws-cdk-lib/aws-dynamodb";
 import {PolicyStatement} from "aws-cdk-lib/aws-iam";
 import {IQueue} from "aws-cdk-lib/aws-sqs";
 import {VideoSearchStack, VideoSearchStackProps} from "./video-search-stack";
+import {ARecord, HostedZone, IHostedZone} from "aws-cdk-lib/aws-route53";
+import {Certificate} from "aws-cdk-lib/aws-certificatemanager";
 
-interface DemoAppStackProps extends VideoSearchStackProps {}
+interface DemoAppStackProps extends VideoSearchStackProps {
+    appDomainName: string
+}
 
 export class DemoAppStack extends VideoSearchStack {
     constructor(scope: Construct, id: string, props: DemoAppStackProps) {
@@ -23,12 +27,45 @@ export class DemoAppStack extends VideoSearchStack {
         const tantivySearchFunction = aws_lambda.Function.fromFunctionName(this, "TantivySearchFunction", this.ssm.tantivySearchFunctionName);
 
         const demoFunction = this.createDemoAppFunction(dynamodbTable, sqs, tantivySearchFunction);
-        this.createDemoApi(demoFunction);
+
+        const certArn = process.env.CERTIFICATE_ARN || '';
+        const zoneId = process.env.HOSTED_ZONE_ID || '';
+
+        const domain = this.createApiGatewayDomainName("VideoSearchDomain", `${props.appDomainName}.drskur.xyz`, certArn);
+        const zone = this.findHostedZone(zoneId, 'drskur.xyz');
+        this.createRoute53Record('VideoApiRecord', zone, props.appDomainName, domain.regionalDomainName);
+
+        this.createDemoApi(demoFunction, domain);
     }
 
-    private createDemoApi(func: IFunction) {
+    private createApiGatewayDomainName(id: string, domainName: string, certArn: string): DomainName {
+        return new DomainName(this, id, {
+            domainName,
+            certificate: Certificate.fromCertificateArn(this, `certificate-${id}`, certArn)
+        });
+    }
+
+    private findHostedZone(hostedZoneId: string, zoneName: string): IHostedZone {
+        return HostedZone.fromHostedZoneAttributes(this, `HostedZone-${hostedZoneId}`, {
+            hostedZoneId,
+            zoneName
+        });
+    }
+
+    private createRoute53Record(id: string, zone: IHostedZone, recordName: string, domainName: string): ARecord {
+        return new aws_route53.CnameRecord(this, id, {
+            zone,
+            recordName,
+            domainName
+        });
+    }
+
+    private createDemoApi(func: IFunction, domainName: IDomainName) {
         new HttpApi(this, "DemoApi", {
-            defaultIntegration: new HttpLambdaIntegration("DemoAppIntegration", func)
+            defaultIntegration: new HttpLambdaIntegration("DemoAppIntegration", func),
+            defaultDomainMapping: {
+                domainName
+            }
         });
     }
 
