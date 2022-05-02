@@ -1,5 +1,4 @@
-import * as cdk from '@aws-cdk/core';
-import {aws_efs, aws_lambda, aws_sns, aws_ssm, Duration, Stack, StackProps} from "aws-cdk-lib";
+import {aws_efs, aws_lambda, aws_sns, aws_ssm, Duration, RemovalPolicy, Stack, StackProps} from "aws-cdk-lib";
 import {Construct} from "constructs";
 import {IVpc, Vpc} from "aws-cdk-lib/aws-ec2";
 import { PerformanceMode} from "aws-cdk-lib/aws-efs";
@@ -86,7 +85,7 @@ export class TantivyStack extends Stack {
         return new aws_efs.FileSystem(this, 'TantivyStorage', {
             vpc,
             performanceMode: PerformanceMode.MAX_IO,
-            removalPolicy: cdk.RemovalPolicy.DESTROY
+            removalPolicy: RemovalPolicy.DESTROY
         });
     }
 
