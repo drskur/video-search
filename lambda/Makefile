@@ -24,3 +24,14 @@ tantivy-search:
 dist:
 	mkdir -p ../.dist
 	cp -r target/lambda/ ../.dist/
+
+codebuild:
+	cargo build --release
+	mkdir -p ../.dist
+	cp target/release/app ../.dist/app/bootstrap
+	cp target/release/transcribe ../.dist/transcribe/bootstrap
+	cp target/release/transcribe-complete ../.dist/transcribe-complete/bootstrap
+	cp target/release/subtitle ../.dist/subtitle/bootstrap
+	cp target/release/kendra-index ../.dist/kendra-index/bootstrap
+	cp target/release/tantivy-index ../.dist/tantivy-index/bootstrap
+	cp target/release/tantivy-search ../.dist/tantivy-search/bootstrap
