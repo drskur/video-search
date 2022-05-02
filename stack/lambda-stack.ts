@@ -4,10 +4,7 @@ import {
     aws_events_targets,
     aws_lambda,
     aws_s3, aws_sqs,
-    aws_ssm,
     Duration,
-    Stack,
-    StackProps
 } from "aws-cdk-lib";
 import {Construct} from "constructs";
 import {Architecture, Code, IFunction, Runtime} from "aws-cdk-lib/aws-lambda";
@@ -17,19 +14,17 @@ import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
 import {ITable} from "aws-cdk-lib/aws-dynamodb";
 import {IQueue} from "aws-cdk-lib/aws-sqs";
 import {ITopic, Topic} from "aws-cdk-lib/aws-sns";
+import {VideoSearchStack, VideoSearchStackProps} from "./video-search-stack";
 
-export class LambdaStack extends Stack {
-    constructor(scope: Construct, id: string, props?: StackProps) {
+interface LambdaStackProps extends VideoSearchStackProps {}
+
+export class LambdaStack extends VideoSearchStack {
+    constructor(scope: Construct, id: string, props: LambdaStackProps) {
         super(scope, id, props);
 
-        const dynamoTableName = aws_ssm.StringParameter.fromStringParameterName(this, "DynamoDBTableName", "/video-search/dynamodb-table-name/video");
-        const dynamodbTable = aws_dynamodb.Table.fromTableName(this, "DynamoDBVideoTable", dynamoTableName.stringValue);
-
-        const bucketName = aws_ssm.StringParameter.fromStringParameterName(this, "ContentBucketName", "/video-search/bucket-name/content");
-        const bucket = aws_s3.Bucket.fromBucketName(this, "ContentBucket", bucketName.stringValue);
-
-        const subtitleQueueArn = aws_ssm.StringParameter.fromStringParameterName(this, "SubtitleQueueArn", "/video-search/queue/subtitle");
-        const subtitleQueue = aws_sqs.Queue.fromQueueArn(this, "SubtitleQueue", subtitleQueueArn.stringValue);
+        const dynamodbTable = aws_dynamodb.Table.fromTableName(this, "DynamoDBVideoTable", this.ssm.videoDynamoDBTableName);
+        const bucket = aws_s3.Bucket.fromBucketName(this, "ContentBucket", this.ssm.contentBucketName);
+        const subtitleQueue = aws_sqs.Queue.fromQueueArn(this, "SubtitleQueue", this.ssm.subtitleQueueArn);
 
         this.createTranscribeFunction(dynamodbTable, bucket);
 
@@ -37,19 +32,16 @@ export class LambdaStack extends Stack {
         const transcribeCompleteFunction = this.createTranscribeCompleteFunction(dynamodbTable, subtitleQueue);
         rule.addTarget(new aws_events_targets.LambdaFunction(transcribeCompleteFunction as IFunction));
 
-        const topic = this.createIndexTopic();
+        const topic = this.createIndexTopic(props.stageName);
         this.createSubtitleFunction(dynamodbTable, bucket, subtitleQueue, topic);
     }
 
-    private createIndexTopic(): Topic {
+    private createIndexTopic(stageName: string): Topic {
         const topic = new Topic(this, "IndexTopic", {
-            topicName: 'VideoSearchIndexJob'
+            topicName: `VideoSearchIndexJob-${stageName}`
         });
 
-        new aws_ssm.StringParameter(this, "IndexTopic-Param", {
-            parameterName: '/video-search/topic/index',
-            stringValue: topic.topicArn
-        });
+        this.ssm.subtitleIndexTopicArn = topic.topicArn;
 
         return topic;
     }
@@ -66,7 +58,7 @@ export class LambdaStack extends Stack {
             architecture: Architecture.ARM_64,
             code: Code.fromAsset('./.dist/subtitle/'),
             handler: "bootstrap",
-            timeout: Duration.seconds(100),
+            timeout: Duration.seconds(30),
             environment: {
                 DYNAMODB_TABLE_NAME: dynamoDbTable.tableName,
                 BUCKET_NAME: bucket.bucketName,

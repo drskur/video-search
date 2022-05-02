@@ -1,4 +1,4 @@
-import {aws_dynamodb, aws_lambda, aws_sns, aws_ssm, Duration, Stack, StackProps} from "aws-cdk-lib";
+import {aws_dynamodb, aws_lambda, aws_sns, Duration} from "aws-cdk-lib";
 import {Construct} from "constructs";
 import {Effect, PolicyStatement, Role, ServicePrincipal} from "aws-cdk-lib/aws-iam";
 import {CfnIndex} from "aws-cdk-lib/aws-kendra";
@@ -6,20 +6,21 @@ import {ITopic} from "aws-cdk-lib/aws-sns";
 import {ITable} from "aws-cdk-lib/aws-dynamodb";
 import {Architecture, Code, Runtime} from "aws-cdk-lib/aws-lambda";
 import {SnsEventSource} from "aws-cdk-lib/aws-lambda-event-sources";
+import {VideoSearchStack, VideoSearchStackProps} from "./video-search-stack";
 
-export class KendraStack extends Stack {
+interface KendraStackProps extends VideoSearchStackProps {}
 
-    constructor(scope: Construct, id: string, props?: StackProps) {
+export class KendraStack extends VideoSearchStack {
+
+    constructor(scope: Construct, id: string, props: KendraStackProps) {
         super(scope, id, props);
 
-        const dynamoTableName = aws_ssm.StringParameter.fromStringParameterName(this, "DynamoDBTableName", "/video-search/dynamodb-table-name/video");
-        const dynamodbTable = aws_dynamodb.Table.fromTableName(this, "DynamoDBVideoTable", dynamoTableName.stringValue);
+        const dynamodbTable = aws_dynamodb.Table.fromTableName(this, "DynamoDBVideoTable", this.ssm.videoDynamoDBTableName);
 
         const role = this.createKendraIndexRole("KendraVideoIndexRole");
-        const kendra = this.createCfnIndex("VideoSearchIndex", "VideoSearchIndex", role);
+        const kendra = this.createCfnIndex("VideoSearchIndex", `VideoSearchIndex-${props.stageName}`, role);
 
-        const indexJobTopicArn = aws_ssm.StringParameter.fromStringParameterName(this, "IndexJobTopicArn", "/video-search/topic/index");
-        const topic = aws_sns.Topic.fromTopicArn(this, "IndexJobTopic", indexJobTopicArn.stringValue)
+        const topic = aws_sns.Topic.fromTopicArn(this, "IndexJobTopic", this.ssm.subtitleIndexTopicArn)
         this.createKendraIndexFunction(dynamodbTable, kendra, topic);
     }
 
@@ -97,10 +98,7 @@ export class KendraStack extends Stack {
             }
         ];
 
-        new aws_ssm.StringParameter(this, "Kendra-Param", {
-           parameterName: '/video-search/kendra/video',
-           stringValue: index.attrId
-        });
+        this.ssm.kendraIndexId = index.attrId;
 
         return index;
     }

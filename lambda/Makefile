@@ -1,4 +1,4 @@
-all: app transcribe transcribe-complete subtitle kendra-index tantivy-index dist
+all: app transcribe transcribe-complete subtitle kendra-index tantivy-index tantivy-search dist
 
 app:
 	cargo lambda build --release --bin app --target aarch64-unknown-linux-gnu

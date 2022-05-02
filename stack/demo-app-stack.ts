@@ -1,36 +1,28 @@
-import {aws_dynamodb, aws_lambda, aws_s3, aws_s3_deployment, aws_sqs, aws_ssm, Stack, StackProps} from "aws-cdk-lib";
+import {
+    aws_dynamodb,
+    aws_lambda,
+    aws_sqs,
+} from "aws-cdk-lib";
 import {Construct} from "constructs";
 import {Architecture, Code, IFunction, Runtime} from "aws-cdk-lib/aws-lambda";
 import {HttpApi, } from "@aws-cdk/aws-apigatewayv2-alpha";
 import {HttpLambdaIntegration} from "@aws-cdk/aws-apigatewayv2-integrations-alpha";
-import {IBucket} from "aws-cdk-lib/aws-s3";
-import {Source} from "aws-cdk-lib/aws-s3-deployment";
 import { ITable } from "aws-cdk-lib/aws-dynamodb";
-import {Vpc} from "aws-cdk-lib/aws-ec2";
-import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
+import {PolicyStatement} from "aws-cdk-lib/aws-iam";
 import {IQueue} from "aws-cdk-lib/aws-sqs";
+import {VideoSearchStack, VideoSearchStackProps} from "./video-search-stack";
 
-export class DemoAppStack extends Stack {
-    constructor(scope: Construct, id: string, props?: StackProps) {
+interface DemoAppStackProps extends VideoSearchStackProps {}
+
+export class DemoAppStack extends VideoSearchStack {
+    constructor(scope: Construct, id: string, props: DemoAppStackProps) {
         super(scope, id, props);
 
-        const bucketName = aws_ssm.StringParameter.fromStringParameterName(this, "ContentBucketName", "/video-search/bucket-name/content");
-        const bucket = aws_s3.Bucket.fromBucketName(this, "ContentBucket", bucketName.stringValue);
+        const dynamodbTable = aws_dynamodb.Table.fromTableName(this, "DynamoDBVideoTable", this.ssm.videoDynamoDBTableName);
+        const sqs = aws_sqs.Queue.fromQueueArn(this, "SubtitleQueue", this.ssm.subtitleQueueArn);
+        const tantivySearchFunction = aws_lambda.Function.fromFunctionName(this, "TantivySearchFunction", this.ssm.tantivySearchFunctionName);
 
-        const contentDomainName = aws_ssm.StringParameter.fromStringParameterName(this, "ContentHostName", '/video-search/domain-name/content');
-
-        const dynamoTableName = aws_ssm.StringParameter.fromStringParameterName(this, "DynamoDBTableName", "/video-search/dynamodb-table-name/video");
-        const dynamodbTable = aws_dynamodb.Table.fromTableName(this, "DynamoDBVideoTable", dynamoTableName.stringValue);
-
-        const queueArn = aws_ssm.StringParameter.fromStringParameterName(this, "SubtitleQueueArn", "/video-search/queue/subtitle");
-        const sqs = aws_sqs.Queue.fromQueueArn(this, "SubtitleQueue", queueArn.stringValue);
-
-        const kendraIndex = aws_ssm.StringParameter.fromStringParameterName(this, "Kendra", "/video-search/kendra/video");
-
-        const tantivySearchFunctionName = aws_ssm.StringParameter.fromStringParameterName(this, "TantivySearchFunction-Param", "/video-search/function/tantivy-search");
-        const tantivySearchFunction = aws_lambda.Function.fromFunctionName(this, "TantivySearchFunction", tantivySearchFunctionName.stringValue);
-
-        const demoFunction = this.createDemoAppFunction(bucket, contentDomainName.stringValue, dynamodbTable, sqs, kendraIndex.stringValue, tantivySearchFunction);
+        const demoFunction = this.createDemoAppFunction(dynamodbTable, sqs, tantivySearchFunction);
         this.createDemoApi(demoFunction);
     }
 
@@ -41,12 +33,11 @@ export class DemoAppStack extends Stack {
     }
 
     private createDemoAppFunction(
-        bucket: IBucket,
-        contentHostName: string,
         dynamoDbTable: ITable,
         sqs: IQueue,
-        kendraIndex: string,
         tantivySearchFunction: IFunction): aws_lambda.Function {
+
+        const kendraIndexId = this.ssm.kendraIndexId;
 
         const fn = new aws_lambda.Function(this, "DemoAppFunction", {
             functionName: `${this.stackName}-Demo`,
@@ -56,26 +47,19 @@ export class DemoAppStack extends Stack {
             code: Code.fromAsset('./.dist/app/'),
             handler: "bootstrap",
             environment: {
-                CONTENT_HOST: contentHostName,
+                CONTENT_HOST: this.ssm.contentDomainName,
                 DYNAMODB_TABLE_NAME: dynamoDbTable.tableName,
                 QUEUE_URL: sqs.queueUrl,
-                KENDRA_INDEX: kendraIndex,
+                KENDRA_INDEX: kendraIndexId,
                 TANTIVY_SEARCH_FUNCTION_NAME: tantivySearchFunction.functionName
             },
         });
 
-        fn.addToRolePolicy(new PolicyStatement({
-            resources: [ dynamoDbTable.tableArn ],
-            actions: [ '*' ]
-        }));
+        dynamoDbTable.grantReadWriteData(fn);
+        sqs.grantSendMessages(fn);
 
         fn.addToRolePolicy(new PolicyStatement({
-            resources: [ sqs.queueArn ],
-            actions: [ '*' ]
-        }))
-
-        fn.addToRolePolicy(new PolicyStatement({
-            resources: [`arn:aws:kendra:${this.region}:${this.account}:index/${kendraIndex}`],
+            resources: [`arn:aws:kendra:${this.region}:${this.account}:index/${kendraIndexId}`],
             actions: [ "kendra:*" ],
         }))
 

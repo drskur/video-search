@@ -1,30 +1,62 @@
-import {aws_dynamodb, aws_sqs, aws_ssm, Stack, StackProps} from "aws-cdk-lib";
+import {aws_dynamodb, aws_sqs} from "aws-cdk-lib";
 import {Construct} from "constructs";
 import {Bucket} from "aws-cdk-lib/aws-s3";
 import {BillingMode} from "aws-cdk-lib/aws-dynamodb";
+import {VideoSearchStack, VideoSearchStackProps} from "./video-search-stack";
+import {
+    AllowedMethods, CachedMethods,
+    Distribution,
+    OriginAccessIdentity,
+    OriginRequestPolicy,
+    ResponseHeadersPolicy
+} from "aws-cdk-lib/aws-cloudfront";
+import {CanonicalUserPrincipal, PolicyStatement} from "aws-cdk-lib/aws-iam";
+import {S3Origin} from "aws-cdk-lib/aws-cloudfront-origins";
 
-export class FoundationStack extends Stack {
+interface FoundationStackProps extends VideoSearchStackProps {
+    contentBucketUniqueName: string,
+}
 
-    constructor(scope: Construct, id: string, props?: StackProps) {
+export class FoundationStack extends VideoSearchStack {
+
+    constructor(scope: Construct, id: string, props: FoundationStackProps) {
         super(scope, id, props);
 
-        const bucket = this.createVideoSearchBucket('drskur');
-        new aws_ssm.StringParameter(this, "ContentBucketName", {
-            parameterName: '/video-search/bucket-name/content',
-            stringValue: bucket.bucketName
-        });
+        const bucket = this.createVideoSearchBucket(props.contentBucketUniqueName);
+        this.ssm.contentBucketName = bucket.bucketName;
 
-        const db = this.createDynamoDB('video-search-video');
-        new aws_ssm.StringParameter(this, "DynamoDB-Video-Param", {
-            parameterName: '/video-search/dynamodb-table-name/video',
-            stringValue: db.tableName
-        });
+
+        const db = this.createDynamoDB(`${this.stackName}-video`);
+        this.ssm.videoDynamoDBTableName = db.tableName;
 
         const queue = this.createSubtitleQueue();
-        new aws_ssm.StringParameter(this, "SQS-Video-Param", {
-            parameterName: '/video-search/queue/subtitle',
-            stringValue: queue.queueArn
-        })
+        this.ssm.subtitleQueueArn = queue.queueArn;
+
+        const distribution = this.createCloudFrontDistribution(bucket);
+        this.ssm.contentDomainName = distribution.distributionDomainName;
+    }
+
+    private createCloudFrontDistribution(bucket: Bucket): Distribution {
+        const oai = new OriginAccessIdentity(this, "OAI");
+        bucket.addToResourcePolicy(new PolicyStatement({
+            actions: ['s3:GetObject'],
+            resources: [ bucket.arnForObjects('*') ],
+            principals: [new CanonicalUserPrincipal(
+                oai.cloudFrontOriginAccessIdentityS3CanonicalUserId
+            )]
+        }));
+
+        return new Distribution(this, "VideoDistribution", {
+            defaultBehavior: {
+                origin: new S3Origin(bucket, {
+                    originAccessIdentity: oai
+                }),
+                originRequestPolicy: OriginRequestPolicy.CORS_S3_ORIGIN,
+                responseHeadersPolicy: ResponseHeadersPolicy.CORS_ALLOW_ALL_ORIGINS_WITH_PREFLIGHT,
+                allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+                cachedMethods: CachedMethods.CACHE_GET_HEAD_OPTIONS
+            },
+        });
     }
 
     private createVideoSearchBucket(uniqueName: string): Bucket {
@@ -47,11 +79,11 @@ export class FoundationStack extends Stack {
     private createSubtitleQueue(): aws_sqs.Queue {
 
         const dlq = new aws_sqs.Queue(this, "SubtitleDLQ", {
-            queueName: 'video-search-subtitle-dlq'
+            queueName: `${this.stackName}-subtitle-dlq`
         })
 
         return new aws_sqs.Queue(this, "SubtitleQueue", {
-            queueName: 'video-search-subtitle',
+            queueName: `${this.stackName}-subtitle`,
             deadLetterQueue: {
                 queue: dlq,
                 maxReceiveCount: 3

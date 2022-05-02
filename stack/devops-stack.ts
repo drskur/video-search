@@ -2,7 +2,7 @@ import {aws_codecommit, Stack, StackProps} from "aws-cdk-lib";
 import {Construct} from "constructs";
 import {CodePipeline, CodePipelineSource, ShellStep} from "aws-cdk-lib/pipelines";
 import {ComputeType, LinuxArmBuildImage} from "aws-cdk-lib/aws-codebuild";
-import {VideoSearchDefaultStage} from "./default-stage";
+import {VideoSearchStage} from "../stage/video-search-stage";
 
 export class DevopsStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
@@ -32,7 +32,9 @@ export class DevopsStack extends Stack {
             })
         });
 
-        pipeline.addStage(new VideoSearchDefaultStage(this, 'Default', {}));
+        pipeline.addStage(new VideoSearchStage(this, 'Default', {
+            bucketUniqueName: 'drskur'
+        }));
 
         return pipeline;
     }

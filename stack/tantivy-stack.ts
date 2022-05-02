@@ -1,13 +1,16 @@
-import {aws_efs, aws_lambda, aws_sns, aws_ssm, Duration, RemovalPolicy, Stack, StackProps} from "aws-cdk-lib";
+import {aws_efs, aws_lambda, aws_sns, Duration, RemovalPolicy} from "aws-cdk-lib";
 import {Construct} from "constructs";
 import {IVpc, Vpc} from "aws-cdk-lib/aws-ec2";
 import { PerformanceMode} from "aws-cdk-lib/aws-efs";
 import {ITopic} from "aws-cdk-lib/aws-sns";
 import {Architecture, Code, FileSystem, Runtime} from "aws-cdk-lib/aws-lambda";
 import {SnsEventSource} from "aws-cdk-lib/aws-lambda-event-sources";
+import {VideoSearchStack, VideoSearchStackProps} from "./video-search-stack";
 
-export class TantivyStack extends Stack {
-    constructor(scope: Construct, id: string, props?: StackProps) {
+interface TantivyStacnProps extends VideoSearchStackProps {}
+
+export class TantivyStack extends VideoSearchStack {
+    constructor(scope: Construct, id: string, props: TantivyStacnProps) {
         super(scope, id, props);
 
         const vpc = this.createVPC();
@@ -25,8 +28,7 @@ export class TantivyStack extends Stack {
             }
         });
 
-        const indexJobTopicArn = aws_ssm.StringParameter.fromStringParameterName(this, "IndexJobTopicArn", "/video-search/topic/index");
-        const topic = aws_sns.Topic.fromTopicArn(this, "IndexJobTopic", indexJobTopicArn.stringValue)
+        const topic = aws_sns.Topic.fromTopicArn(this, "IndexJobTopic", this.ssm.subtitleIndexTopicArn)
         this.createTantivyIndexFunction(vpc, storageAccessPoint, topic);
         this.createTantivySearchFunction(vpc, storageAccessPoint);
 
@@ -48,10 +50,7 @@ export class TantivyStack extends Stack {
             filesystem: FileSystem.fromEfsAccessPoint(accessPoint, '/mnt/tantivy'),
         });
 
-        new aws_ssm.StringParameter(this, "TantivySearchFunctionName", {
-            parameterName: '/video-search/function/tantivy-search',
-            stringValue: fn.functionName
-        })
+        this.ssm.tantivySearchFunctionName = fn.functionName;
 
         return fn;
     }
