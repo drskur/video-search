@@ -18,7 +18,8 @@
 
                     {% for video in videos %}
                     <li class="flex py-6 sm:py-10 flex-col sm:flex-row">
-                        <div class="">
+<!--                        <div class="min-w-fit">-->
+                        <div>
                             <video preload="metadata" controls
                                    class="w-full sm:w-80 aspect-video" crossorigin="anonymous">
                                 <source src="{{video.video_key|content_url_opt}}#t={{video.timing}}" type="video/mp4">
@@ -30,7 +31,7 @@
                             <div class="relative pr-9 sm:pr-0 mt-2">
                                 {% for line in video.body %}
                                     <dl class="flex">
-                                        <dt class="text-gray-600 w-10">{{line.time|second_format}}</dt>
+                                        <dt class="text-gray-600 w-15">{{line.time|second_format}}</dt>
                                         <dd>{{line.text}}</dd>
                                     </dl>
                                 {% endfor %}
