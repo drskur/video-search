@@ -51,6 +51,7 @@ async fn handler(event: LambdaEvent<S3Event>) -> Result<(), Error> {
                 .item("video_key", AttributeValue::S(url_decode(&key)))
                 .item("title", AttributeValue::S(url_decode(title)))
                 .item("lang", AttributeValue::S(lang.to_string()))
+                .item("subtitles", AttributeValue::L(vec![]))
                 .send()
                 .await
                 .unwrap();
