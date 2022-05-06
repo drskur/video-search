@@ -1,14 +1,22 @@
-# Welcome to your CDK TypeScript project
+# Video Search
 
-This is a blank project for TypeScript development with CDK.
+This repo is a sample video search app using AWS services.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## Architecture
 
-## Useful commands
+![Video Search Architecture](docs/architecture.png)
 
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `cdk deploy`      deploy this stack to your default AWS account/region
-* `cdk diff`        compare deployed stack with current state
-* `cdk synth`       emits the synthesized CloudFormation template
+
+## CDK
+
+```bash
+$ npm install
+
+# aws credential setup required.
+$ cdk deploy VideoSearchDevopsStack
+
+# After deploying the stack, then the CodeCommit repo will be created.
+# If you want to deploy this app, you have to push this repo to the CodeCommit repo.
+$ git remote add codecommit <CodeCommit-Repo>
+$ git push codecommit main
+```

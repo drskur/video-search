@@ -3,8 +3,8 @@ Content-Type: application/json
 Authorization: Basic ZHJza3VyOg==
 
 {
-  "video_id": "d0d1e2fd-f3a5-497d-b59d-d2067e75b8ca",
-  "target_lang": "en"
+  "video_id": "75e490bd-9a0b-43ab-8e36-80b5b4754b51",
+  "target_lang": "ko"
 }
 
 ###
