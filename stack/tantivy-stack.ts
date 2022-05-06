@@ -39,7 +39,7 @@ export class TantivyStack extends VideoSearchStack {
             functionName: `${this.stackName}-TantivySearch`,
             runtime: Runtime.PROVIDED_AL2,
             architecture: Architecture.ARM_64,
-            memorySize: 1024,
+            memorySize: 2048,
             code: Code.fromAsset('./.dist/tantivy-search/'),
             handler: "bootstrap",
             timeout: Duration.seconds(10),
