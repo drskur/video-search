@@ -51,7 +51,8 @@
   "private": true,
   "workspaces": {
     "packages": [
-      "packages/infra"
+      "packages/infra",
+      "packages/lambda"
     ]
   },
   "resolutions": {

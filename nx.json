@@ -16,7 +16,11 @@
       }
     }
   },
-  "implicitDependencies": {},
+  "implicitDependencies": {
+    "infra": [
+      "lambda"
+    ]
+  },
   "targetDependencies": {
     "build": [
       {

@@ -1,5 +1,6 @@
 import { nx_monorepo } from "aws-prototyping-sdk";
 import { PDKPipelineTsProject } from "aws-prototyping-sdk/pipeline";
+import {Project} from "projen";
 
 const project = new nx_monorepo.NxMonorepoProject({
   defaultReleaseBranch: "main",
@@ -17,12 +18,27 @@ const project = new nx_monorepo.NxMonorepoProject({
 });
 project.addGitIgnore(".idea");
 
-new PDKPipelineTsProject({
+const pipelineProject = new PDKPipelineTsProject({
   parent: project,
   outdir: "packages/infra",
   defaultReleaseBranch: "main",
   name: "infra",
   cdkVersion: "2.1.0",
+  license: "MIT",
+  copyrightOwner: "drskur<drskur@amazon.com>"
 });
+
+const lambdaProject = new Project({
+  parent: project,
+  name: "lambda",
+  outdir: "packages/lambda",
+});
+lambdaProject.addGitIgnore("target");
+lambdaProject.addGitIgnore(".dist");
+lambdaProject.tasks.tryFind("package")?.reset(
+    "make all"
+);
+
+project.addImplicitDependency(pipelineProject, lambdaProject);
 
 project.synth();

@@ -1,5 +1,5 @@
 import { Stack, StackProps } from "aws-cdk-lib";
-import { ComputeType, LinuxArmBuildImage } from "aws-cdk-lib/aws-codebuild";
+import {BuildSpec, ComputeType, LinuxBuildImage} from "aws-cdk-lib/aws-codebuild";
 import { PDKPipeline } from "aws-prototyping-sdk/pipeline";
 import { Construct } from "constructs";
 
@@ -15,14 +15,27 @@ export class PipelineStack extends Stack {
       repositoryName: this.node.tryGetContext("repositoryName") || "monorepo",
       publishAssetsInParallel: false,
       crossAccountKeys: true,
-      synth: {},
       sonarCodeScannerConfig: this.node.tryGetContext("sonarqubeScannerConfig"),
       synthCodeBuildDefaults: {
         buildEnvironment: {
-          buildImage: LinuxArmBuildImage.AMAZON_LINUX_2_STANDARD_2_0,
-          computeType: ComputeType.LARGE,
+          buildImage: LinuxBuildImage.STANDARD_6_0,
+          computeType: ComputeType.X2_LARGE,
         },
+        partialBuildSpec: BuildSpec.fromObject({
+          version: "0.2",
+          phases: {
+            install: {
+              "commands": [
+                "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y",
+                ". $HOME/.cargo/env",
+                "pip3 install cargo-lambda",
+              ]
+            }
+          }
+        })
       },
+      synth: {}
     });
+
   }
 }
