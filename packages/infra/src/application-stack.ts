@@ -1,10 +1,14 @@
 import { Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
+import { MediaBucket } from "./constructs/media-bucket";
+import { MediaVpc } from "./constructs/media-vpc";
 
 export class ApplicationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    // TODO: Add resources
+    new MediaVpc(this, "VPC");
+
+    new MediaBucket(this, "Bucket");
   }
 }
