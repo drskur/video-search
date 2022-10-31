@@ -30,6 +30,9 @@ jspm_packages/
 .yarn-integrity
 .cache
 !/.projenrc.js
+/test-reports/
+junit.xml
+/coverage/
 !/.prettierignore
 !/.prettierrc.json
 !/test/
@@ -39,8 +42,8 @@ jspm_packages/
 /lib
 /dist/
 !/.eslintrc.json
-!/.syncpackrc.json
-!/.nxignore
-!/.nx/plugins/nx-monorepo-plugin.js
-!/nx.json
-.idea
+/assets/
+!/cdk.json
+/cdk.out/
+.cdk.staging/
+.parcel-cache/

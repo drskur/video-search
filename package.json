@@ -1,5 +1,6 @@
 {
   "name": "video-search",
+  "description": "This repo is a sample video search app using AWS services.",
   "scripts": {
     "build": "npx projen build",
     "clobber": "npx projen clobber",
@@ -44,12 +45,14 @@
     "constructs": "^10.1.145"
   },
   "main": "lib/index.js",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "version": "0.0.0",
   "types": "lib/index.d.ts",
   "private": true,
   "workspaces": {
-    "packages": []
+    "packages": [
+      "packages/infra"
+    ]
   },
   "resolutions": {
     "@types/responselike": "1.0.0",
