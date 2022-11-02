@@ -1,7 +1,7 @@
-all: s3-put-object-trigger dist
+all: transcribe dist
 
-s3-put-object-trigger:
-	cargo lambda build --release --bin s3-put-object-trigger --target aarch64-unknown-linux-gnu
+transcribe:
+	cargo lambda build --release --bin transcribe --target aarch64-unknown-linux-gnu
 
 dist:
 	mkdir -p ./.dist

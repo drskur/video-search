@@ -1,27 +1,29 @@
-import {Construct} from "constructs";
-import {Architecture, Code, Runtime,Function} from "aws-cdk-lib/aws-lambda";
-import {Duration} from "aws-cdk-lib";
+import { Construct } from "constructs";
+import { Architecture, Code, Runtime, Function } from "aws-cdk-lib/aws-lambda";
+import { Duration } from "aws-cdk-lib";
+import { IVpc } from "aws-cdk-lib/aws-ec2";
 
 export interface RustLambdaFunctionProps {
-    functionName?: string,
-    code: Code,
-    architecture: Architecture,
-    timeout?: Duration,
-    readonly environment?: {
-        [key: string]: string;
-    };
+  functionName?: string;
+  code: Code;
+  architecture: Architecture;
+  vpc?: IVpc;
+  timeout?: Duration;
+  readonly environment?: {
+    [key: string]: string;
+  };
 }
 
 export class RustLambdaFunction extends Construct {
-    public readonly func: Function;
+  public readonly func: Function;
 
-    constructor(scope: Construct, id: string, props: RustLambdaFunctionProps) {
-        super(scope, id);
+  constructor(scope: Construct, id: string, props: RustLambdaFunctionProps) {
+    super(scope, id);
 
-        this.func = new Function(this, `${id}Function`, {
-            runtime: Runtime.PROVIDED_AL2,
-            handler: "bootstrap",
-            ...props,
-        });
-    }
+    this.func = new Function(this, `${id}Function`, {
+      runtime: Runtime.PROVIDED_AL2,
+      handler: "bootstrap",
+      ...props,
+    });
+  }
 }

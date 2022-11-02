@@ -26,7 +26,12 @@ export class MediaVpc extends Construct {
         {
           cidrMask: 24,
           name: "application",
-          subnetType: SubnetType.PRIVATE_ISOLATED,
+          subnetType: SubnetType.PRIVATE_WITH_EGRESS,
+        },
+        {
+          cidrMask: 24,
+          name: "ingress",
+          subnetType: SubnetType.PUBLIC,
         },
       ],
       flowLogs: {

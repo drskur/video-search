@@ -2,17 +2,23 @@ import { Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { MediaBucket } from "./constructs/media-bucket";
 import { MediaVpc } from "./constructs/media-vpc";
-import {TranscribeStateMachine} from "./constructs/transcribe-state-machine";
+import { MediaDynamodb } from "./constructs/media-dynamodb";
+import { TranscribeFunction } from "./constructs/transcribe-function";
 
 export class ApplicationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    new MediaVpc(this, "VPC");
+    const { vpc } = new MediaVpc(this, "VPC");
 
-    new MediaBucket(this, "Bucket");
+    const mediaBucket = new MediaBucket(this, "Bucket");
 
-    new TranscribeStateMachine(this, "Transcribe");
+    const mediaDynamodb = new MediaDynamodb(this, "MediaDB");
 
+    new TranscribeFunction(this, "TranscribeFunction", {
+      vpc,
+      dynamoDbTable: mediaDynamodb.table,
+      eventSourceBucket: mediaBucket.bucket,
+    });
   }
 }
