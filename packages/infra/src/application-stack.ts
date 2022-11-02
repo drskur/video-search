@@ -2,8 +2,7 @@ import { Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { MediaBucket } from "./constructs/media-bucket";
 import { MediaVpc } from "./constructs/media-vpc";
-import { RustLambdaFunction } from "./constructs/rust-lambda-function";
-import { Architecture, Code } from "aws-cdk-lib/aws-lambda";
+import {TranscribeStateMachine} from "./constructs/transcribe-state-machine";
 
 export class ApplicationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -13,9 +12,7 @@ export class ApplicationStack extends Stack {
 
     new MediaBucket(this, "Bucket");
 
-    new RustLambdaFunction(this, "S3PutObjectTrigger", {
-      code: Code.fromAsset("../lambda/.dist/s3-put-object-trigger/"),
-      architecture: Architecture.ARM_64,
-    });
+    new TranscribeStateMachine(this, "Transcribe");
+
   }
 }
