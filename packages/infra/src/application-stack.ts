@@ -4,6 +4,8 @@ import { MediaBucket } from "./constructs/media-bucket";
 import { MediaVpc } from "./constructs/media-vpc";
 import { MediaDynamodb } from "./constructs/media-dynamodb";
 import { TranscribeFunction } from "./constructs/transcribe-function";
+import { TranscribeCompletedFunction } from "./constructs/transcribe-completed-function";
+import { SubtitleJobQueue } from "./constructs/subtitle-job-queue";
 
 export class ApplicationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -19,6 +21,14 @@ export class ApplicationStack extends Stack {
       vpc,
       dynamoDbTable: mediaDynamodb.table,
       eventSourceBucket: mediaBucket.bucket,
+    });
+
+    const subtitleJobQueue = new SubtitleJobQueue(this, "SubtitleJobQueue");
+
+    new TranscribeCompletedFunction(this, "TranscribeCompletedFunction", {
+      vpc,
+      dynamoDbTable: mediaDynamodb.table,
+      subtitleJobQueue: subtitleJobQueue.queue,
     });
   }
 }

@@ -22,7 +22,7 @@ export class TranscribeFunction extends Construct {
 
     const { vpc, eventSourceBucket, dynamoDbTable } = props;
 
-    this.rustFunction = new RustLambdaFunction(this, "TranscribeFunction", {
+    this.rustFunction = new RustLambdaFunction(this, "Function", {
       vpc,
       code: Code.fromAsset("../lambda/.dist/transcribe/"),
       architecture: Architecture.ARM_64,

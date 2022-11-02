@@ -42,17 +42,6 @@ async fn handler(event: LambdaEvent<S3Event>) -> Result<(), Error> {
         let file_name = key_path.file_stem().and_then(|s| s.to_str()).expect("file name must be exist");
         if let [title, lang, ..] = file_name.split(".").collect::<Vec<&str>>()[..] {
             let id = Uuid::new_v4().to_string();
-            dynamodb.put_item()
-                .table_name(&table_name)
-                .item("id", AttributeValue::S(id.clone()))
-                .item("created_at", AttributeValue::S(Utc::now().to_string()))
-                .item("video_key", AttributeValue::S(url_decode(&key)))
-                .item("title", AttributeValue::S(url_decode(title)))
-                .item("lang", AttributeValue::S(lang.to_string()))
-                .item("subtitles", AttributeValue::L(vec![]))
-                .send()
-                .await
-                .unwrap();
 
             let media_uri = url_decode(&format!("s3://{}/{}", &bucket, key));
             println!("Create Start Transcribe Job at {}", media_uri);
@@ -66,6 +55,18 @@ async fn handler(event: LambdaEvent<S3Event>) -> Result<(), Error> {
                 .media(media)
                 .output_bucket_name(&bucket)
                 .output_key(format!("transcription/{}", &id))
+                .send()
+                .await
+                .unwrap();
+
+            dynamodb.put_item()
+                .table_name(&table_name)
+                .item("id", AttributeValue::S(id.clone()))
+                .item("created_at", AttributeValue::S(Utc::now().to_string()))
+                .item("video_key", AttributeValue::S(url_decode(&key)))
+                .item("title", AttributeValue::S(url_decode(title)))
+                .item("lang", AttributeValue::S(lang.to_string()))
+                .item("subtitles", AttributeValue::L(vec![]))
                 .send()
                 .await
                 .unwrap();
