@@ -46,11 +46,11 @@ fn de_alternatives<'de, D>(deserializer: D) -> Result<String, D::Error>
     where D: Deserializer<'de>
 {
     let v = Value::deserialize(deserializer)?;
-    let arr = v.as_array().ok_or(de::Error::custom("alternatives must be array"))?;
-    let head = arr.get(0).ok_or(de::Error::custom("alternatives must have head item"))?;
-    let obj = head.as_object().ok_or(de::Error::custom("alternative must be object"))?;
-    let obj_vaule = obj.get("content").ok_or(de::Error::custom("alternative must have content"))?;
-    let content = obj_vaule.as_str().ok_or(de::Error::custom("content must be string"))?;
+    let arr = v.as_array().ok_or_else(|| de::Error::custom("alternatives must be array"))?;
+    let head = arr.get(0).ok_or_else(|| de::Error::custom("alternatives must have head item"))?;
+    let obj = head.as_object().ok_or_else(|| de::Error::custom("alternative must be object"))?;
+    let obj_vaule = obj.get("content").ok_or_else(|| de::Error::custom("alternative must have content"))?;
+    let content = obj_vaule.as_str().ok_or_else(|| de::Error::custom("content must be string"))?;
 
     Ok(content.to_string())
 }
@@ -86,9 +86,9 @@ impl Subtitle {
         let output = serde_json::from_str::<TranscribeJobOutput>(json)?;
         let mut items: Vec<SubtitleItem> = vec![];
 
-        let mut iter = output.results.items.into_iter();
+        let iter = output.results.items.into_iter();
         let mut item = SubtitleItem::default();
-        while let Some(it) = iter.next() {
+        for it in iter {
             if item.start_time == f32::default() {
                 item.start_time = it.start_time.unwrap_or(0f32);
                 item.end_time = it.end_time.unwrap_or(0f32);
@@ -106,7 +106,7 @@ impl Subtitle {
         }
 
         if item.start_time != f32::default() {
-            items.push(item.clone());
+            items.push(item);
         }
 
         Ok(Subtitle { items })
@@ -124,7 +124,7 @@ impl Subtitle {
                 .text(&item.content)
                 .send()
                 .await?;
-            item.content = translate.translated_text.unwrap_or("".to_string());
+            item.content = translate.translated_text.unwrap_or_else(|| "".to_string());
             items.push(item);
         }
         self.items = items;
@@ -152,7 +152,7 @@ impl Subtitle {
         let file = tokio::fs::File::create(output_path).await?;
         let mut w = BufReader::new(file);
 
-        w.write_all(format!("WEBVTT\n\n").as_bytes()).await?;
+        w.write_all("WEBVTT\n\n".as_bytes()).await?;
 
         for (_i, item) in self.items.iter().enumerate() {
             w.write_all(format!("{} --> {}\n",

@@ -4,8 +4,14 @@ This repo is a sample video search app using AWS services.
 
 ## Architecture
 
-![Video Search Architecture](docs/architecture.png)
+### Transcribe
+![Transcribe](docs/transcribe.drawio.svg)
 
+### Generate Subtitle (VTT)
+![Generate Subtitle](docs/subtitle.drawio.svg)
+
+### Code Pipeline
+![Code Pipeline](docs/code-pipeline.drawio.svg)
 
 ## CDK
 

@@ -1,10 +1,13 @@
-all: transcribe transcribe_completed dist
+all: transcribe transcribe_post_process subtitle dist
 
 transcribe:
 	cargo lambda build --release --bin transcribe --target aarch64-unknown-linux-gnu
 
-transcribe_completed:
-	cargo lambda build --release --bin transcribe_completed --target aarch64-unknown-linux-gnu
+transcribe_post_process:
+	cargo lambda build --release --bin transcribe_post_process --target aarch64-unknown-linux-gnu
+
+subtitle:
+	cargo lambda build --release --bin subtitle --target aarch64-unknown-linux-gnu
 
 dist:
 	mkdir -p ./.dist

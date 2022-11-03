@@ -4,8 +4,10 @@ import { MediaBucket } from "./constructs/media-bucket";
 import { MediaVpc } from "./constructs/media-vpc";
 import { MediaDynamodb } from "./constructs/media-dynamodb";
 import { TranscribeFunction } from "./constructs/transcribe-function";
-import { TranscribeCompletedFunction } from "./constructs/transcribe-completed-function";
+import { TranscribePostProcessFunction } from "./constructs/transcribe-post-process-function";
 import { SubtitleJobQueue } from "./constructs/subtitle-job-queue";
+import { SubtitleFunction } from "./constructs/subtitle-function";
+import { Topic } from "aws-cdk-lib/aws-sns";
 
 export class ApplicationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -25,10 +27,20 @@ export class ApplicationStack extends Stack {
 
     const subtitleJobQueue = new SubtitleJobQueue(this, "SubtitleJobQueue");
 
-    new TranscribeCompletedFunction(this, "TranscribeCompletedFunction", {
+    new TranscribePostProcessFunction(this, "TranscribePostProcessFunction", {
       vpc,
       dynamoDbTable: mediaDynamodb.table,
       subtitleJobQueue: subtitleJobQueue.queue,
+    });
+
+    const subtitleResultTopic = new Topic(this, "SubtitleResultTopic");
+
+    new SubtitleFunction(this, "SubtitleFunction", {
+      vpc,
+      dynamoDbTable: mediaDynamodb.table,
+      subtitleJobQueue: subtitleJobQueue.queue,
+      mediaSourceBucket: mediaBucket.bucket,
+      subtitleResultTopic,
     });
   }
 }

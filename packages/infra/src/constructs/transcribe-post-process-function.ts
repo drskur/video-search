@@ -8,20 +8,20 @@ import { ITable } from "aws-cdk-lib/aws-dynamodb";
 import { Rule } from "aws-cdk-lib/aws-events";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
 
-export interface TranscribeCompletedFunctionProps {
+export interface TranscribePostProcessFunctionProps {
   readonly vpc: IVpc;
   readonly dynamoDbTable: ITable;
   readonly subtitleJobQueue: IQueue;
 }
 
-export class TranscribeCompletedFunction extends Construct {
+export class TranscribePostProcessFunction extends Construct {
   public readonly rustFunction: RustLambdaFunction;
   public readonly transcribeJobCompletedRule: Rule;
 
   constructor(
     scope: Construct,
     id: string,
-    props: TranscribeCompletedFunctionProps
+    props: TranscribePostProcessFunctionProps
   ) {
     super(scope, id);
 
@@ -29,7 +29,7 @@ export class TranscribeCompletedFunction extends Construct {
 
     this.rustFunction = new RustLambdaFunction(this, "Function", {
       vpc,
-      code: Code.fromAsset("../lambda/.dist/transcribe_completed/"),
+      code: Code.fromAsset("../lambda/.dist/transcribe_post_process/"),
       architecture: Architecture.ARM_64,
       environment: {
         DYNAMODB_TABLE_NAME: dynamoDbTable.tableName,

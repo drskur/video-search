@@ -59,7 +59,7 @@ async fn handler(event: LambdaEvent<CloudWatchEvent>) -> Result<(), Error> {
     let item = output.item.unwrap();
     let lang = item.get("lang")
         .and_then(|v| v.as_s().ok())
-        .map(|s| s.split("-").collect::<Vec<_>>())
+        .map(|s| s.split('-').collect::<Vec<_>>())
         .unwrap();
 
     let queue_message = SubtitleQueueMessage::new(

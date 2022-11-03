@@ -40,7 +40,7 @@ async fn handler(event: LambdaEvent<S3Event>) -> Result<(), Error> {
         }
 
         let file_name = key_path.file_stem().and_then(|s| s.to_str()).expect("file name must be exist");
-        if let [title, lang, ..] = file_name.split(".").collect::<Vec<&str>>()[..] {
+        if let [title, lang, ..] = file_name.split('.').collect::<Vec<&str>>()[..] {
             let id = Uuid::new_v4().to_string();
 
             let media_uri = url_decode(&format!("s3://{}/{}", &bucket, key));
@@ -78,7 +78,7 @@ async fn handler(event: LambdaEvent<S3Event>) -> Result<(), Error> {
 }
 
 fn url_decode(url: &str) -> String {
-    url_escape::decode(url).replace("+", " ")
+    url_escape::decode(url).replace('+', " ")
 }
 
 #[cfg(test)]
