@@ -11,6 +11,8 @@ import { Topic } from "aws-cdk-lib/aws-sns";
 import { IndexSubtitleFunction } from "./constructs/index-subtitle-function";
 import { TantivyIndexStorage } from "./constructs/tantivy-index-storage";
 import { SearchSubtitleFunction } from "./constructs/search-subtitle-function";
+import { AppFunction } from "./constructs/app-function";
+import { AppApiGateway } from "./constructs/app-api-gateway";
 
 export class ApplicationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -60,9 +62,24 @@ export class ApplicationStack extends Stack {
       subtitleResultTopic,
     });
 
-    new SearchSubtitleFunction(this, "SearchSubtitleFunction", {
+    const searchSubtitleFunction = new SearchSubtitleFunction(
+      this,
+      "SearchSubtitleFunction",
+      {
+        vpc,
+        tantivyAccessPoint: tantivyIndexStorage.accessPoint,
+      }
+    );
+
+    const appFunction = new AppFunction(this, "AppFunction", {
       vpc,
-      tantivyAccessPoint: tantivyIndexStorage.accessPoint,
+      subtitleJobQueue: subtitleJobQueue.queue,
+      searchSubtitleFunction: searchSubtitleFunction.rustFunction.func,
+      dynamoDbTable: mediaDynamodb.table,
+    });
+
+    new AppApiGateway(this, "AppApiGateway", {
+      handler: appFunction.rustFunction.func,
     });
   }
 }

@@ -26,6 +26,10 @@ const pipelineProject = new PDKPipelineTsProject({
   cdkVersion: "2.1.0",
   license: "MIT",
   copyrightOwner: "drskur<drskur@amazon.com>",
+  deps: [
+    "@aws-cdk/aws-apigatewayv2-alpha",
+    "@aws-cdk/aws-apigatewayv2-integrations-alpha",
+  ],
 });
 
 const lambdaProject = new Project({

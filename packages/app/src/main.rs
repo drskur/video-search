@@ -3,6 +3,8 @@ use actix_web::middleware::Logger;
 use env_logger::Env;
 use lambda_web::{is_running_on_lambda, LambdaError, run_actix_on_lambda};
 
+pub mod handlers;
+
 #[actix_web::main]
 async fn main() -> Result<(), LambdaError> {
 
@@ -11,6 +13,7 @@ async fn main() -> Result<(), LambdaError> {
     let factory = move || {
         App::new()
             .wrap(Logger::default())
+            .service(handlers::index::handler)
     };
 
     if is_running_on_lambda() {
