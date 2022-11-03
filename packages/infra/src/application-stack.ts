@@ -8,6 +8,8 @@ import { TranscribePostProcessFunction } from "./constructs/transcribe-post-proc
 import { SubtitleJobQueue } from "./constructs/subtitle-job-queue";
 import { SubtitleFunction } from "./constructs/subtitle-function";
 import { Topic } from "aws-cdk-lib/aws-sns";
+import { IndexSubtitleFunction } from "./constructs/index-subtitle-function";
+import { TantivyIndexStorage } from "./constructs/tantivy-index-storage";
 
 export class ApplicationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -40,6 +42,20 @@ export class ApplicationStack extends Stack {
       dynamoDbTable: mediaDynamodb.table,
       subtitleJobQueue: subtitleJobQueue.queue,
       mediaSourceBucket: mediaBucket.bucket,
+      subtitleResultTopic,
+    });
+
+    const tantivyIndexStorage = new TantivyIndexStorage(
+      this,
+      "TantivyIndexStorage",
+      {
+        vpc,
+      }
+    );
+
+    new IndexSubtitleFunction(this, "IndexSubtitleFunction", {
+      vpc,
+      tantivyAccessPoint: tantivyIndexStorage.accessPoint,
       subtitleResultTopic,
     });
   }

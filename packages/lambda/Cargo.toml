@@ -2,6 +2,7 @@
 name = "lambda"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.62"
 
 [lib]
 name = "lib"
@@ -18,6 +19,10 @@ path = "src/cmd/transcribe_post_process.rs"
 [[bin]]
 name = "subtitle"
 path = "src/cmd/subtitle.rs"
+
+[[bin]]
+name = "index_subtitle"
+path = "src/cmd/index_subtitle.rs"
 
 [dependencies]
 serde = "1"
@@ -39,3 +44,5 @@ chrono = "0.4"
 uuid = { version = "1", features = ["serde", "v4"] }
 dotenv = "0.15"
 url-escape = "0.1"
+tantivy = "0.18"
+lindera-tantivy = { version = "0.18", features = ["ko-dic"] }

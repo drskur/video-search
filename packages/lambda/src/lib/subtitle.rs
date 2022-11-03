@@ -124,7 +124,7 @@ impl Subtitle {
                 .text(&item.content)
                 .send()
                 .await?;
-            item.content = translate.translated_text.unwrap_or_else(|| "".to_string());
+            item.content = translate.translated_text.unwrap_or_default();
             items.push(item);
         }
         self.items = items;

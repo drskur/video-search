@@ -2,6 +2,7 @@ import { Construct } from "constructs";
 import { Architecture, Code, Runtime, Function } from "aws-cdk-lib/aws-lambda";
 import { Duration } from "aws-cdk-lib";
 import { IVpc } from "aws-cdk-lib/aws-ec2";
+import { FileSystem } from "aws-cdk-lib/aws-lambda";
 
 export interface RustLambdaFunctionProps {
   functionName?: string;
@@ -12,6 +13,7 @@ export interface RustLambdaFunctionProps {
   readonly environment?: {
     [key: string]: string;
   };
+  filesystem?: FileSystem;
 }
 
 export class RustLambdaFunction extends Construct {
