@@ -18,7 +18,8 @@
   },
   "implicitDependencies": {
     "infra": [
-      "lambda"
+      "lambda",
+      "app"
     ]
   },
   "targetDependencies": {

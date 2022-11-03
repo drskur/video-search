@@ -24,6 +24,10 @@ path = "src/cmd/subtitle.rs"
 name = "index_subtitle"
 path = "src/cmd/index_subtitle.rs"
 
+[[bin]]
+name = "search_subtitle"
+path = "src/cmd/search_subtitle.rs"
+
 [dependencies]
 serde = "1"
 serde_json = "1"

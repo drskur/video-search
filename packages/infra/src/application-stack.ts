@@ -10,6 +10,7 @@ import { SubtitleFunction } from "./constructs/subtitle-function";
 import { Topic } from "aws-cdk-lib/aws-sns";
 import { IndexSubtitleFunction } from "./constructs/index-subtitle-function";
 import { TantivyIndexStorage } from "./constructs/tantivy-index-storage";
+import { SearchSubtitleFunction } from "./constructs/search-subtitle-function";
 
 export class ApplicationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -57,6 +58,11 @@ export class ApplicationStack extends Stack {
       vpc,
       tantivyAccessPoint: tantivyIndexStorage.accessPoint,
       subtitleResultTopic,
+    });
+
+    new SearchSubtitleFunction(this, "SearchSubtitleFunction", {
+      vpc,
+      tantivyAccessPoint: tantivyIndexStorage.accessPoint,
     });
   }
 }
