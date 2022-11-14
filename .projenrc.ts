@@ -29,6 +29,8 @@ const pipelineProject = new PDKPipelineTsProject({
   deps: [
     "@aws-cdk/aws-apigatewayv2-alpha",
     "@aws-cdk/aws-apigatewayv2-integrations-alpha",
+    "@aws-cdk/aws-cognito-identitypool-alpha",
+    "@aws-prototyping-sdk/identity",
   ],
 });
 

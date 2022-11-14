@@ -20,6 +20,23 @@
   resolved "https://registry.yarnpkg.com/@aws-cdk/aws-apigatewayv2-integrations-alpha/-/aws-apigatewayv2-integrations-alpha-2.49.0-alpha.0.tgz#c544346df36647f2a4682ba4055f1c90c2e66db5"
   integrity sha512-Nk5E4yT8mWBracSH9oHbhXXkr1a9izN00anSRiSVJ7rDIj8ZgUS0uNGM5NexLzwjT40XHRo6iUuSlAhoojpwCA==
 
+"@aws-cdk/aws-cognito-identitypool-alpha@^2.49.0-alpha.0":
+  version "2.49.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-cognito-identitypool-alpha/-/aws-cognito-identitypool-alpha-2.49.0-alpha.0.tgz#8bcdab74f4e116da962f7c0d1ad4e8dc905f846a"
+  integrity sha512-mI/i2SDfqoTIihxxiGSfyf86Qt+prHrbKEqmmVFn2FnA/eQsbSOZmn/7EC1nGQcDj7bfYhAQfJ6gmYh3II9LqQ==
+
+"@aws-prototyping-sdk/identity@^0.12.8":
+  version "0.12.8"
+  resolved "https://registry.yarnpkg.com/@aws-prototyping-sdk/identity/-/identity-0.12.8.tgz#cd3f8c1323427d6a8f1593b0d24f90390150b987"
+  integrity sha512-s801iaLR5nwjIAzt4Gg5U4BUGn8gSptXli5Bm56QX6yiP88oCp1zvBW63Dt+UoJRfoUojoXXgrgzb9ZI7qy17g==
+  dependencies:
+    "@aws-prototyping-sdk/pdk-nag" "^0.12.2"
+
+"@aws-prototyping-sdk/pdk-nag@^0.12.2":
+  version "0.12.8"
+  resolved "https://registry.yarnpkg.com/@aws-prototyping-sdk/pdk-nag/-/pdk-nag-0.12.8.tgz#ff17a7047103b4ae65dbf06c87efd26c97758753"
+  integrity sha512-jWhY933Vc76BO3rzrzTNpKr9+El4cGZEY99rWhe7mChZ3Xf9VlH758Z75qOSxCbXjskxfY1Kgzi1SAbQ0fozLA==
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.12.13", "@babel/code-frame@^7.18.6":
   version "7.18.6"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.18.6.tgz#3b25d38c89600baa2dcc219edfa88a74eb2c427a"

@@ -1,6 +1,6 @@
 import { Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { MediaBucket } from "./constructs/media-bucket";
+import { MediaStorage } from "./constructs/media-storage";
 import { MediaVpc } from "./constructs/media-vpc";
 import { MediaDynamodb } from "./constructs/media-dynamodb";
 import { TranscribeFunction } from "./constructs/transcribe-function";
@@ -20,14 +20,14 @@ export class ApplicationStack extends Stack {
 
     const { vpc } = new MediaVpc(this, "VPC");
 
-    const mediaBucket = new MediaBucket(this, "Bucket");
+    const mediaStorage = new MediaStorage(this, "Bucket");
 
     const mediaDynamodb = new MediaDynamodb(this, "MediaDB");
 
     new TranscribeFunction(this, "TranscribeFunction", {
       vpc,
       dynamoDbTable: mediaDynamodb.table,
-      eventSourceBucket: mediaBucket.bucket,
+      eventSourceBucket: mediaStorage.bucket,
     });
 
     const subtitleJobQueue = new SubtitleJobQueue(this, "SubtitleJobQueue");
@@ -44,7 +44,7 @@ export class ApplicationStack extends Stack {
       vpc,
       dynamoDbTable: mediaDynamodb.table,
       subtitleJobQueue: subtitleJobQueue.queue,
-      mediaSourceBucket: mediaBucket.bucket,
+      mediaSourceBucket: mediaStorage.bucket,
       subtitleResultTopic,
     });
 
@@ -76,6 +76,7 @@ export class ApplicationStack extends Stack {
       subtitleJobQueue: subtitleJobQueue.queue,
       searchSubtitleFunction: searchSubtitleFunction.rustFunction.func,
       dynamoDbTable: mediaDynamodb.table,
+      distribution: mediaStorage.distribution,
     });
 
     new AppApiGateway(this, "AppApiGateway", {

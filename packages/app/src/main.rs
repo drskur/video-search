@@ -4,6 +4,8 @@ use env_logger::Env;
 use lambda_web::{is_running_on_lambda, LambdaError, run_actix_on_lambda};
 
 pub mod handlers;
+pub mod store;
+pub mod askama_filters;
 
 #[actix_web::main]
 async fn main() -> Result<(), LambdaError> {
@@ -14,6 +16,7 @@ async fn main() -> Result<(), LambdaError> {
         App::new()
             .wrap(Logger::default())
             .service(handlers::index::handler)
+            .service(handlers::video_detail::handler)
     };
 
     if is_running_on_lambda() {

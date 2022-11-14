@@ -49,6 +49,8 @@
   "dependencies": {
     "@aws-cdk/aws-apigatewayv2-alpha": "^2.49.0-alpha.0",
     "@aws-cdk/aws-apigatewayv2-integrations-alpha": "^2.49.0-alpha.0",
+    "@aws-cdk/aws-cognito-identitypool-alpha": "^2.49.0-alpha.0",
+    "@aws-prototyping-sdk/identity": "^0.12.8",
     "aws-cdk-lib": "^2.1.0",
     "aws-prototyping-sdk": "^0.12.4",
     "cdk-nag": "^2.19.8",

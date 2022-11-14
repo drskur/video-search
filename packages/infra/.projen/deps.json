@@ -110,6 +110,14 @@
       "type": "runtime"
     },
     {
+      "name": "@aws-cdk/aws-cognito-identitypool-alpha",
+      "type": "runtime"
+    },
+    {
+      "name": "@aws-prototyping-sdk/identity",
+      "type": "runtime"
+    },
+    {
       "name": "aws-cdk-lib",
       "version": "^2.1.0",
       "type": "runtime"
