@@ -36,6 +36,7 @@ export class AppFunction extends Construct {
       environment: {
         CONTENT_HOST: distribution.distributionDomainName,
         DYNAMODB_TABLE_NAME: dynamoDbTable.tableName,
+        TANTIVY_SEARCH_FUNCTION_NAME: searchSubtitleFunction.functionName,
       },
     });
     dynamoDbTable.grantReadWriteData(this.rustFunction.func);
