@@ -2,6 +2,12 @@
 
 This repo is a sample video search app using AWS services.
 
+## Features
+
+- Transcribing Video and generate subtitle.
+- Translate subtitle and generate subtitle.
+- Search subtitle and jump to selected part of the video.
+
 ## Architecture
 
 ### Transcribe
@@ -12,6 +18,9 @@ This repo is a sample video search app using AWS services.
 
 ### Code Pipeline
 ![Code Pipeline](docs/code-pipeline.drawio.svg)
+
+### Demo App
+![Demo App](docs/app.drawio.svg)
 
 ## CDK
 
