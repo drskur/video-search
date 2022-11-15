@@ -6,3 +6,10 @@ pub struct IndexTopicMessage {
     pub lang: String,
     pub body: String,
 }
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ImageFrameEvent{
+    pub video_id: String,
+    pub video_key: String,
+    pub thumbnail_key: String
+}

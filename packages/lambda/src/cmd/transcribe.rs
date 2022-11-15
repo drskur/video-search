@@ -1,10 +1,12 @@
 use std::path::Path;
 use aws_lambda_events::s3::S3Event;
 use aws_sdk_dynamodb::model::AttributeValue;
+use aws_sdk_lambda::types::ByteStream;
 use aws_sdk_transcribe::model::{LanguageCode, Media};
 use chrono::Utc;
 use lambda_runtime::{Error, LambdaEvent, service_fn};
 use uuid::Uuid;
+use lib::index::ImageFrameEvent;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
@@ -19,11 +21,14 @@ async fn handler(event: LambdaEvent<S3Event>) -> Result<(), Error> {
 
     let table_name = dotenv::var("DYNAMODB_TABLE_NAME")
         .expect("DYNAMODB_TABLE_NAME must be set.");
+    let image_frame_function_name = dotenv::var("IMAGE_FRAME_FUNCTION_NAME")
+        .expect("IMAGE_FRAME_FUNCTION_NAME must be set");
 
     let shared_config = aws_config::from_env().load().await;
 
     let dynamodb = aws_sdk_dynamodb::Client::new(&shared_config);
     let transcribe = aws_sdk_transcribe::Client::new(&shared_config);
+    let lambda = aws_sdk_lambda::Client::new(&shared_config);
 
     for record in event.payload.records {
         let bucket = record.s3.bucket.name.expect("object bucket must be set");
@@ -59,11 +64,27 @@ async fn handler(event: LambdaEvent<S3Event>) -> Result<(), Error> {
                 .await
                 .unwrap();
 
+            let thumbnail_key = format!("thumbnail/{}.jpg", id);
+            let image_frame_payload = ImageFrameEvent{
+                video_id: id.to_string(),
+                video_key: url_decode(&key),
+                thumbnail_key: thumbnail_key.to_string()
+            };
+            let payload_bytes = serde_json::to_vec_pretty(&image_frame_payload).unwrap();
+
+            lambda.invoke_async()
+                .function_name(&image_frame_function_name)
+                .invoke_args(ByteStream::from(payload_bytes))
+                .send()
+                .await
+                .unwrap();
+
             dynamodb.put_item()
                 .table_name(&table_name)
                 .item("id", AttributeValue::S(id.clone()))
                 .item("created_at", AttributeValue::S(Utc::now().to_string()))
                 .item("video_key", AttributeValue::S(url_decode(&key)))
+                .item("thumbnail_key", AttributeValue::S(url_decode(&thumbnail_key)))
                 .item("title", AttributeValue::S(url_decode(title)))
                 .item("lang", AttributeValue::S(lang.to_string()))
                 .item("subtitles", AttributeValue::L(vec![]))

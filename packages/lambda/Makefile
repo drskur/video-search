@@ -1,4 +1,4 @@
-all: transcribe transcribe_post_process subtitle index_subtitle search_subtitle dist
+all: transcribe transcribe_post_process subtitle index_subtitle search_subtitle image_frame dist
 
 transcribe:
 	cargo lambda build --release --bin transcribe --target aarch64-unknown-linux-gnu
@@ -14,6 +14,9 @@ index_subtitle:
 
 search_subtitle:
 	cargo lambda build --release --bin search_subtitle --target aarch64-unknown-linux-gnu
+
+image_frame:
+	cargo lambda build --release --bin image_frame --target aarch64-unknown-linux-gnu
 
 dist:
 	mkdir -p ./.dist

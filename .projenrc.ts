@@ -32,6 +32,9 @@ const pipelineProject = new PDKPipelineTsProject({
     "@aws-cdk/aws-cognito-identitypool-alpha",
     "@aws-prototyping-sdk/identity",
   ],
+  scripts: {
+    ffmpeg: "cd layers/ffmpeg && make",
+  },
 });
 
 const lambdaProject = new Project({

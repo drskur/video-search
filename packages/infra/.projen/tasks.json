@@ -113,6 +113,14 @@
         }
       ]
     },
+    "ffmpeg": {
+      "name": "ffmpeg",
+      "steps": [
+        {
+          "exec": "cd layers/ffmpeg && make"
+        }
+      ]
+    },
     "package": {
       "name": "package",
       "description": "Creates the distribution package"

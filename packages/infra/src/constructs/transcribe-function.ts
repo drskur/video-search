@@ -1,6 +1,6 @@
 import { Construct } from "constructs";
 import { RustLambdaFunction } from "./rust-lambda-function";
-import { Architecture, Code } from "aws-cdk-lib/aws-lambda";
+import { Architecture, Code, IFunction } from "aws-cdk-lib/aws-lambda";
 import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { Table } from "aws-cdk-lib/aws-dynamodb";
 import { S3EventSource } from "aws-cdk-lib/aws-lambda-event-sources";
@@ -12,6 +12,7 @@ export interface TranscribeFunctionProps {
   eventSourceBucket: Bucket;
   dynamoDbTable: Table;
   vpc: IVpc;
+  imageFrameFunction: IFunction;
 }
 
 export class TranscribeFunction extends Construct {
@@ -20,7 +21,7 @@ export class TranscribeFunction extends Construct {
   constructor(scope: Construct, id: string, props: TranscribeFunctionProps) {
     super(scope, id);
 
-    const { vpc, eventSourceBucket, dynamoDbTable } = props;
+    const { vpc, eventSourceBucket, dynamoDbTable, imageFrameFunction } = props;
 
     this.rustFunction = new RustLambdaFunction(this, "Function", {
       vpc,
@@ -28,9 +29,11 @@ export class TranscribeFunction extends Construct {
       architecture: Architecture.ARM_64,
       environment: {
         DYNAMODB_TABLE_NAME: dynamoDbTable.tableName,
+        IMAGE_FRAME_FUNCTION_NAME: imageFrameFunction.functionName,
       },
       timeout: Duration.seconds(15),
     });
+    imageFrameFunction.grantInvoke(this.rustFunction.func);
     dynamoDbTable.grantWriteData(this.rustFunction.func);
     eventSourceBucket.grantReadWrite(this.rustFunction.func);
     this.rustFunction.func.addToRolePolicy(

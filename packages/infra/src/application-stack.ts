@@ -13,6 +13,7 @@ import { TantivyIndexStorage } from "./constructs/tantivy-index-storage";
 import { SearchSubtitleFunction } from "./constructs/search-subtitle-function";
 import { AppFunction } from "./constructs/app-function";
 import { AppApiGateway } from "./constructs/app-api-gateway";
+import { ImageFrameFunction } from "./constructs/image-frame-function";
 
 export class ApplicationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -24,10 +25,20 @@ export class ApplicationStack extends Stack {
 
     const mediaDynamodb = new MediaDynamodb(this, "MediaDB");
 
+    const imageFrameFunction = new ImageFrameFunction(
+      this,
+      "ImageFrameFunction",
+      {
+        vpc,
+        bucket: mediaStorage.bucket,
+      }
+    );
+
     new TranscribeFunction(this, "TranscribeFunction", {
       vpc,
       dynamoDbTable: mediaDynamodb.table,
       eventSourceBucket: mediaStorage.bucket,
+      imageFrameFunction: imageFrameFunction.rustFunction.func,
     });
 
     const subtitleJobQueue = new SubtitleJobQueue(this, "SubtitleJobQueue");

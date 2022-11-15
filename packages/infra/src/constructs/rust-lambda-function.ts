@@ -1,5 +1,11 @@
 import { Construct } from "constructs";
-import { Architecture, Code, Runtime, Function } from "aws-cdk-lib/aws-lambda";
+import {
+  Architecture,
+  Code,
+  Runtime,
+  Function,
+  ILayerVersion,
+} from "aws-cdk-lib/aws-lambda";
 import { Duration } from "aws-cdk-lib";
 import { IVpc } from "aws-cdk-lib/aws-ec2";
 import { FileSystem } from "aws-cdk-lib/aws-lambda";
@@ -15,6 +21,7 @@ export interface RustLambdaFunctionProps {
   };
   filesystem?: FileSystem;
   memorySize?: number;
+  layers?: ILayerVersion[];
 }
 
 export class RustLambdaFunction extends Construct {

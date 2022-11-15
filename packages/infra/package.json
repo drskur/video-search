@@ -11,6 +11,7 @@
     "diff": "npx projen diff",
     "eject": "npx projen eject",
     "eslint": "npx projen eslint",
+    "ffmpeg": "npx projen ffmpeg",
     "package": "npx projen package",
     "post-compile": "npx projen post-compile",
     "post-upgrade": "npx projen post-upgrade",
