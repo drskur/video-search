@@ -30,7 +30,8 @@ export class SearchSubtitleFunction extends Construct {
       environment: {
         TANTIVY_MOUNT: mountPath,
       },
-      timeout: Duration.seconds(15),
+      timeout: Duration.seconds(5),
+      memorySize: 512,
       filesystem: FileSystem.fromEfsAccessPoint(tantivyAccessPoint, mountPath),
     });
   }

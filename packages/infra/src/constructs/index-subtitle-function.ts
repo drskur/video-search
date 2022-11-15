@@ -29,7 +29,8 @@ export class IndexSubtitleFunction extends Construct {
       environment: {
         TANTIVY_MOUNT: mountPath,
       },
-      timeout: Duration.seconds(15),
+      timeout: Duration.seconds(300),
+      memorySize: 512,
       filesystem: FileSystem.fromEfsAccessPoint(tantivyAccessPoint, mountPath),
     });
 

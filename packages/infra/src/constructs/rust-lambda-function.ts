@@ -14,6 +14,7 @@ export interface RustLambdaFunctionProps {
     [key: string]: string;
   };
   filesystem?: FileSystem;
+  memorySize?: number;
 }
 
 export class RustLambdaFunction extends Construct {
