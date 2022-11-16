@@ -49,7 +49,7 @@ async fn upload_object(client: &aws_sdk_s3::Client, bucket: &str, key: &str, fil
 async fn create_frame_image(file_path: &str) -> Result<String, Error> {
     let output_file_path = "/tmp/thumbnail.jpg";
     Command::new("/opt/ffmpeg/bin/ffmpeg")
-        .args(&["-ss", "00:00:00", "-i", file_path, "-frames:v", "1", "-q:v", "2", output_file_path])
+        .args(&["-ss", "00:00:01", "-i", file_path, "-frames:v", "1", "-q:v", "2", output_file_path])
         .output()
         .await
         .unwrap();
